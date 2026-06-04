@@ -1,12 +1,13 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   devIndicators: false,
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:4010/api/:path*',
+        destination: `${process.env.API_URL || 'http://localhost:4010'}/api/:path*`,
       },
     ];
   },
