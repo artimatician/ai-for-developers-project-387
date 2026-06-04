@@ -30,9 +30,9 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | # | Topic | Decision |
 |---|-------|----------|
 | 4 | Event Type Lifecycle | Soft-delete via `isActive` boolean flag. `PATCH /api/owner/event-types/{id}` with `{ isActive: false }` hides from guests. Existing bookings remain valid. |
-| 5 | Update Semantics | `PUT /api/event-types/{id}` with optional fields (partial update). Duration changes only affect future bookings. |
-| 6 | No Hard DELETE | No DELETE endpoint. Deactivation only via `PATCH` to `isActive: false`. |
-| 7 | Duration Bounds | 15–240 minutes, validated server-side. |
+| 5 | Update Semantics | Single `PATCH /api/owner/event-types/{id}` accepting any subset of `{ name?, description?, timezone?, isActive? }`. Deactivation via `{ isActive: false }` is the same endpoint — no separate toggle. |
+| 6 | No Hard DELETE | No DELETE endpoint for event types. Deactivation only via PATCH to `isActive: false`. |
+| 7 | Duration | Fixed at 30 minutes for all event types. |
 | 8 | Event Type Name | Duplicates allowed. Max 1000 chars. |
 
 ### Availability & Slots
@@ -42,7 +42,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | 9 | Operating Hours | Fixed 09:00–18:00 in the event type's configured timezone (default UTC). |
 | 10 | Timezone | Per-event-type IANA timezone identifier (e.g., "America/New_York"). |
 | 11 | Slot Generation | On-the-fly computation at request time — no stored slot entities. |
-| 12 | Slot Length | Equals event type's `durationMinutes`. Contiguous, non-overlapping slots starting at window start time. Remainder truncated. |
+| 12 | Slot Length | Fixed at 30 minutes for all event types. Contiguous, non-overlapping slots starting at window start time. Remainder truncated. |
 | 13 | Blocking Mechanism | **Blackout** time ranges stored as a separate resource. During slot computation, any slot overlapping a blackout is marked unavailable. This is the on-the-fly equivalent of "slot with `available: false`". |
 | 14 | Slot Response | All slots returned (both available and unavailable) — guest UI can visually distinguish. |
 
@@ -51,7 +51,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | # | Topic | Decision |
 |---|-------|----------|
 | 15 | Booking Creation | Top-level `POST /api/bookings`. Body: `{ eventTypeId, startTime, guestName, notes? }`. |
-| 16 | End Time Storage | Computed server-side as `startTime + eventType.durationMinutes` and stored in `endTime` field. |
+| 16 | End Time Storage | Computed server-side as `startTime + 30 minutes` and stored in `endTime` field. |
 | 17 | Guest Booking Response | Limited: returns `{ startTime, endTime, eventTypeName }`. No booking ID (guests cannot cancel). |
 | 18 | Guest Cancellation | Not supported in MVP. |
 | 19 | Guest Rescheduling | Not supported in MVP. |
@@ -78,7 +78,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | 30 | Content-Type | `application/json` for all requests/responses. |
 | 31 | Text Field Max Length | 1000 characters. |
 | 32 | Rate Limiting | Not required for v1. |
-| 33 | TypeSpec | Use named models, `@friendlyName` on every operation, standard HTTP codes. |
+| 33 | TypeSpec | Use named models, `@doc` on every model and operation, standard HTTP codes. OpenAPI operation IDs generated automatically from namespace + operation name via emitter defaults. |
 
 ---
 
@@ -91,7 +91,6 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | id | string (UUID) | server-generated | format: uuid | |
 | name | string | yes | max 1000 | duplicates allowed |
 | description | string | yes | max 1000 | |
-| durationMinutes | integer | yes | min 15, max 240 | slot length |
 | timezone | string | no | IANA timezone ID | default: "UTC" |
 | isActive | boolean | server-set | | default: true |
 | createdAt | string (ISO 8601) | server-generated | | UTC |
@@ -106,7 +105,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | guestName | string | yes | max 1000 | |
 | notes | string | no | max 1000 | |
 | startTime | string (ISO 8601) | yes | UTC | |
-| endTime | string (ISO 8601) | server-derived | UTC | stored, calculated from startTime + durationMinutes |
+| endTime | string (ISO 8601) | server-derived | UTC | stored, calculated from startTime + 30 minutes |
 | createdAt | string (ISO 8601) | server-generated | | UTC |
 
 ### Blackout
@@ -134,6 +133,57 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | code | string | machine-readable error code |
 | message | string | human-readable description |
 
+### CreateEventTypeRequest
+
+| Field | Type | Required | Constraints | Notes |
+|-------|------|----------|-------------|-------|
+| name | string | yes | max 1000 | |
+| description | string | yes | max 1000 | |
+| timezone | string | no | IANA timezone ID | default: "UTC" |
+
+### UpdateEventTypeRequest
+
+| Field | Type | Required | Constraints | Notes |
+|-------|------|----------|-------------|-------|
+| name | string | no | max 1000 | |
+| description | string | no | max 1000 | |
+| timezone | string | no | IANA timezone ID | |
+| isActive | boolean | no | | |
+
+### PublicEventType (guest list response subset)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| id | string (UUID) | |
+| name | string | |
+| description | string | |
+| timezone | string | |
+
+### CreateBookingRequest
+
+| Field | Type | Required | Constraints | Notes |
+|-------|------|----------|-------------|-------|
+| eventTypeId | string (UUID) | yes | references EventType | must reference an active EventType |
+| startTime | string (ISO 8601) | yes | UTC | must align with a computed slot boundary |
+| guestName | string | yes | max 1000 | |
+| notes | string | no | max 1000 | |
+
+### GuestBookingResponse
+
+| Field | Type | Notes |
+|-------|------|-------|
+| startTime | string (ISO 8601) | UTC |
+| endTime | string (ISO 8601) | UTC |
+| eventTypeName | string | snapshot at booking time |
+
+### CreateBlackoutRequest
+
+| Field | Type | Required | Constraints | Notes |
+|-------|------|----------|-------------|-------|
+| startTime | string (ISO 8601) | yes | UTC | must be before endTime |
+| endTime | string (ISO 8601) | yes | UTC | must be after startTime |
+| reason | string | no | max 1000 | |
+
 ---
 
 ## API Endpoints
@@ -145,8 +195,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 | GET | `/api/owner/event-types` | 200 | List all non-deleted event types |
 | POST | `/api/owner/event-types` | 201 | Create event type |
 | GET | `/api/owner/event-types/{id}` | 200 | Get single event type |
-| PUT | `/api/owner/event-types/{id}` | 200 | Update event type (partial) |
-| PATCH | `/api/owner/event-types/{id}` | 200 | Toggle `isActive` |
+| PATCH | `/api/owner/event-types/{id}` | 200 | Partial update (any subset of fields including isActive) |
 | GET | `/api/owner/bookings` | 200 | List bookings (paginated, filtered) |
 | GET | `/api/owner/blackouts` | 200 | List all blackouts |
 | POST | `/api/owner/blackouts` | 201 | Create blackout |
@@ -154,20 +203,16 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 
 #### POST /api/owner/event-types
 
-- Request body: `{ name, description, durationMinutes, timezone? }`
+- Request body: `{ name, description, timezone? }`
 - Response: `EventType`
-- Validation: name/description max 1000, duration 15–240, timezone valid IANA
-
-#### PUT /api/owner/event-types/{id}
-
-- Request body: `{ name?, description?, durationMinutes?, timezone? }` (all optional)
-- Response: `EventType`
-- Duration changes only affect future bookings
+- Validation: name/description max 1000, timezone valid IANA
 
 #### PATCH /api/owner/event-types/{id}
 
-- Request body: `{ isActive: boolean }`
+- Request body: `UpdateEventTypeRequest` — any subset of `{ name?, description?, timezone?, isActive? }`
 - Response: `EventType`
+- 404 if event type not found
+- Duration changes only affect future bookings
 - Setting `isActive: false` hides from public endpoints
 
 #### GET /api/owner/bookings
@@ -195,7 +240,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 #### GET /api/event-types
 
 - Returns only event types with `isActive: true`
-- Response fields: `{ id, name, description, durationMinutes, timezone }`
+- Response fields: `{ id, name, description, timezone }`
 
 #### GET /api/event-types/{id}
 
@@ -206,16 +251,17 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 
 - 14-day window: from today 00:00:00 UTC to day 13 at 23:59:59 UTC
 - Operating hours: 09:00–18:00 in event type's timezone
-- Slot length = event type's `durationMinutes`
+- Slot length: fixed at 30 minutes
 - On-the-fly computation: subtract existing bookings + blackouts → mark unavailable
 - Response: array of `TimeSlot` (both available and unavailable)
 
 #### POST /api/bookings
 
-- Request body: `{ eventTypeId, startTime, guestName, notes? }`
-- `endTime` derived server-side from event type duration
-- Response: `{ startTime, endTime, eventTypeName }` — no booking ID
-- DB-level unique constraint prevents overlapping bookings; 409 Conflict on overlap
+- Request body: `CreateBookingRequest`
+- `endTime` derived server-side as `startTime + 30 minutes`
+- Response: `GuestBookingResponse` (no booking ID)
+- 404 if eventTypeId does not exist or references an inactive event type
+- 409 if slot overlaps an existing booking or blackout
 
 ### Health Check
 
@@ -232,7 +278,7 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 1. **No Double-Booking:** Any time overlap across all event types blocks a new booking. Enforced via DB constraint. Returns 409 Conflict.
 2. **14-Day Window:** Slots displayed for next 14 days from today 00:00:00 UTC.
 3. **Operating Hours:** 09:00–18:00 in event type's configured timezone.
-4. **Duration-Based Slots:** Slot length equals event type's `durationMinutes`. Contiguous, non-overlapping.
+4. **Fixed 30-Minute Slots:** All slots are 30 minutes long. Contiguous, non-overlapping.
 5. **On-the-Fly Computation:** Slots computed dynamically at request time from availability + bookings + blackouts.
 6. **Instant Booking:** No owner confirmation required.
 7. **No Guest Cancellation:** Bookings are final once created.
@@ -249,14 +295,14 @@ A simplified appointment scheduling service. Calendar owner publishes event type
 Computed on-the-fly at `GET /event-types/{id}/slots` request time:
 
 ```
-Input: eventType (with timezone, durationMinutes), existing bookings, blackouts
+Input: eventType (with timezone), existing bookings, blackouts
 
 For each day D in [today, today + 13 days]:
   1. Convert D 09:00 to UTC using eventType.timezone → windowStart
   2. Convert D 18:00 to UTC using eventType.timezone → windowEnd
   3. slotStart = windowStart
-  4. While (slotStart + durationMinutes) <= windowEnd:
-     a. slotEnd = slotStart + durationMinutes
+  4. While (slotStart + 30 min) <= windowEnd:
+     a. slotEnd = slotStart + 30 min
      b. available = true
      c. Check if any booking overlaps [slotStart, slotEnd]: → available = false
      d. Check if any blackout overlaps [slotStart, slotEnd]: → available = false
@@ -288,29 +334,120 @@ For each day D in [today, today + 13 days]:
 | SLOT_UNAVAILABLE | Requested time slot is already booked or blacked out |
 | BLACKOUT_NOT_FOUND | Blackout ID does not exist |
 | INVALID_TIMEZONE | Timezone is not a valid IANA identifier |
-| INVALID_DURATION | Duration outside 15–240 minute range |
+| EVENT_TYPE_INACTIVE | Event type exists but is not active (guest booking on inactive type) |
 
 ---
 
-## TypeSpec File Structure
+## TypeSpec Specification
+
+### Prerequisites
+
+- **Node.js:** ≥22 (required by TypeSpec compiler 1.x)
+- **Packages:** @typespec/compiler ^1.12.0, @typespec/http ^1.12.0, @typespec/rest ^0.82.0, @typespec/openapi3 ^1.12.0
+
+### File Structure
 
 ```
 spec/
   main.tsp          — Entry point, imports, service definition
-  models.tsp        — Shared models (EventType, Booking, Blackout, TimeSlot, Error)
-  owner.tsp         — All /api/owner/* endpoints
-  guest.tsp         — All /api/* (public) endpoints
+  models.tsp        — All data models (resource, request, response, error)
+  owner.tsp         — All /api/owner/* operations
+  guest.tsp         — All /api/* (public) operations
   package.json      — TypeSpec dependencies
-  tspconfig.yaml    — OpenAPI emitter configuration
+  tspconfig.yaml    — OpenAPI3 emitter configuration
 ```
 
-### File Purposes
+### package.json
+
+```json
+{
+  "name": "schedule-a-call-spec",
+  "dependencies": {
+    "@typespec/compiler": "^1.12.0",
+    "@typespec/http": "^1.12.0",
+    "@typespec/rest": "^0.82.0",
+    "@typespec/openapi3": "^1.12.0"
+  }
+}
+```
+
+### tspconfig.yaml
+
+```yaml
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    "file-type": "yaml"
+    "output-file": "openapi.yaml"
+```
+
+### TypeSpec Conventions
+
+- **Organization:** Use `namespace` blocks (not `interface`) with `@route` for path prefixing. Do NOT use `@autoRoute` or `@resource` — the API paths are too custom for REST resource auto-routing.
+- **Documentation:** Every model and operation must have `@doc("...")` — these become OpenAPI `description` fields.
+- **Operation IDs:** Generated automatically by the OpenAPI3 emitter from namespace + operation name (e.g., `Owner_createEventType`). No need for explicit `@operationId` unless a custom name is desired.
+- **Error responses:** Define `Error` model marked with `@error`. Operations return union types (e.g., `EventType | Error`).
+- **Read-only fields:** Fields like `id`, `createdAt`, `isActive` (on create), `eventTypeName`/`endTime` (on booking) are server-generated. They appear in the full resource model but NOT in request models.
+- **Scalar types:** Use TypeSpec built-in `string` with `@format("uuid")` for UUIDs, `utcDateTime` for ISO 8601 timestamps, plain `string` for IANA timezone IDs.
+
+### Model Inventory for models.tsp
+
+| Model | Type | Used By |
+|-------|------|---------|
+| EventType | Full resource | Owner read responses, Guest GET /event-types/{id} |
+| CreateEventTypeRequest | Request body | Owner POST /event-types |
+| UpdateEventTypeRequest | Request body | Owner PATCH /event-types/{id} |
+| PublicEventType | Response subset | Guest GET /event-types (list) |
+| Booking | Full resource | Owner GET /bookings |
+| CreateBookingRequest | Request body | Guest POST /bookings |
+| GuestBookingResponse | Response subset | Guest POST /bookings response |
+| Blackout | Full resource | Owner read responses |
+| CreateBlackoutRequest | Request body | Owner POST /blackouts |
+| TimeSlot | Computed response | Guest GET /event-types/{id}/slots |
+| Error | Error response | All operations (via @error) |
+| OwnerBookingsParams | Query params | Owner GET /bookings (eventTypeId?, from?, to?, limit?, offset?) |
+
+### Operation Inventory for owner.tsp
+
+| Operation Name | HTTP | Route | Request | Response | Errors |
+|----------------|------|-------|---------|----------|--------|
+| listEventTypes | GET | /event-types | — | EventType[] | — |
+| createEventType | POST | /event-types | CreateEventTypeRequest | EventType | Error (400) |
+| getEventType | GET | /event-types/{id} | — | EventType | Error (404) |
+| updateEventType | PATCH | /event-types/{id} | UpdateEventTypeRequest | EventType | Error (400, 404) |
+| listBookings | GET | /bookings | OwnerBookingsParams (query) | Booking[] | — |
+| listBlackouts | GET | /blackouts | — | Blackout[] | — |
+| createBlackout | POST | /blackouts | CreateBlackoutRequest | Blackout | Error (400) |
+| deleteBlackout | DELETE | /blackouts/{id} | — | void (204) | Error (404) |
+
+All owner operations are in a namespace with `@route("/api/owner")`.
+
+### Operation Inventory for guest.tsp
+
+| Operation Name | HTTP | Route | Request | Response | Errors |
+|----------------|------|-------|---------|----------|--------|
+| listActiveEventTypes | GET | /event-types | — | PublicEventType[] | — |
+| getActiveEventType | GET | /event-types/{id} | — | EventType | Error (404) |
+| getSlots | GET | /event-types/{id}/slots | — | TimeSlot[] | Error (404) |
+| createBooking | POST | /bookings | CreateBookingRequest | GuestBookingResponse | Error (400, 404, 409) |
+
+All guest operations are in a namespace with `@route("/api")`.
+
+### main.tsp Structure
 
 ```
-models.tsp    — EventType, Booking, Blackout, TimeSlot, Error
-owner.tsp     — All /api/owner/* endpoints
-guest.tsp     — All /api/* endpoints (public)
-main.tsp      — Service definition, imports, metadata
+import "@typespec/http";
+import "@typespec/rest";
+import "./models.tsp";
+import "./owner.tsp";
+import "./guest.tsp";
+
+using TypeSpec.Http;
+
+@service({ title: "Schedule a Call" })
+@server("http://localhost:8000", "Local development")
+namespace ScheduleACall {}
 ```
 
 ---
@@ -360,21 +497,13 @@ frontend/
 
 ## Next Steps
 
-1. Write `models.tsp` — shared data models
-2. Write `owner.tsp` — owner endpoints
-3. Write `guest.tsp` — guest endpoints
-4. Write `main.tsp` — service definition, imports
-5. Configure `tspconfig.yaml` — OpenAPI emitter
-6. Compile TypeSpec to OpenAPI (`tsp compile`)
-7. Verify OpenAPI output
-8. Scaffold Django project (`django-admin startproject`)
-9. Configure DRF, set up `appointments` app
-10. Implement Django models: `EventType`, `Booking`, `Blackout`
-11. Implement DRF serializers + views matching OpenAPI spec
-12. Wire Django URLs under `/api/` prefix
-13. Scaffold Next.js app (`create-next-app`)
-14. Build API client and shared components
-15. Build owner pages (event types, bookings, blackouts)
-16. Build guest pages (event type list, slot picker, booking form)
-17. Connect frontend to backend, test full flow end-to-end
-
+1. Scaffold Django project (`django-admin startproject`)
+2. Configure DRF, set up `appointments` app
+3. Implement Django models: `EventType`, `Booking`, `Blackout`
+4. Implement DRF serializers + views matching OpenAPI spec
+5. Wire Django URLs under `/api/` prefix
+6. Scaffold Next.js app (`create-next-app`)
+7. Build API client and shared components
+8. Build owner pages (event types, bookings, blackouts)
+9. Build guest pages (event type list, slot picker, booking form)
+10. Connect frontend to backend, test full flow end-to-end
