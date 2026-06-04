@@ -60,34 +60,43 @@ npm run gen:types     # Generate TypeScript types from OpenAPI spec
 
 ## UI Overview
 
-The guest-facing UI uses a polished 3-column scheduling card layout:
+The guest-facing UI uses a polished 3-column scheduling layout:
 
-- **Homepage** (`/`): Grid of event type cards (`EventTypeList`). Clicking a card navigates to `/event-types/[id]`.
-- **Scheduling page** (`/event-types/[id]`): `SchedulingCard` with three columns:
-  - **EventInfo** — host avatar/name, event title, duration, platform, timezone
-  - **CalendarGrid** — custom month calendar with date availability coloring
-  - **TimeSlotList** — scrollable time slots with inline `BookingForm` on selection
-- **Booking confirmation** (`/bookings/confirm`): post-booking summary.
+- **Homepage** (`/`): Landing page with `HeroSection` (hero heading + embedded how-it-works steps). Uses `Navbar` with `variant="landing"`. "Start booking" button navigates to `/book`.
+- **How it works** (`/how-it-works`): Dedicated page explaining the 3-step booking process.
+- **Event type selection** (`/book`): `ProfileIntroCard` at top + grid of `EventTypeCard` components. Clicking a card navigates to `/book/[id]`.
+- **Scheduling page** (`/book/[id]`): `SchedulingPage` with three columns:
+  - **MeetingSummary** — host avatar/name, event title, description, duration, selected date/time
+  - **CalendarGrid** — custom month calendar with date availability coloring (14-day window)
+  - **TimeSlotList** — scrollable time slots with Back/Continue buttons
+- **Booking form** (`/book/[id]/confirm`): Shows event summary + `BookingForm` (guest name, notes). Submits via API, redirects to confirmation on success.
+- **Booking confirmation** (`/bookings/confirm`): Post-booking summary with checkmark, event details, and "Book another slot" link.
 
 ### Component Structure
 
 | Component | File | Purpose |
 |---|---|---|
-| `EventTypeList` | `src/components/EventTypeList.tsx` | Card grid of active event types |
-| `SchedulingCard` | `src/components/SchedulingCard.tsx` | 3-column card shell |
-| `EventInfo` | `src/components/EventInfo.tsx` | Left column: event metadata |
-| `CalendarGrid` | `src/components/CalendarGrid.tsx` | Center column: month calendar |
-| `TimeSlotList` | `src/components/TimeSlotList.tsx` | Right column: slots + booking |
-| `BookingForm` | `src/components/BookingForm.tsx` | Guest name/notes form |
+| `Navbar` | `src/components/Navbar.tsx` | Top nav bar (landing/inner variants) |
+| `HeroSection` | `src/components/HeroSection.tsx` | Landing page hero + how-it-works steps |
+| `EventTypeCard` | `src/components/EventTypeCard.tsx` | Clickable card for an event type |
+| `ProfileIntroCard` | `src/components/ProfileIntroCard.tsx` | Host profile intro on `/book` |
+| `MeetingSummary` | `src/components/MeetingSummary.tsx` | Left column: event metadata + selections |
+| `SchedulingPage` | `src/components/SchedulingPage.tsx` | 3-column layout orchestrator |
+| `CalendarGrid` | `src/components/CalendarGrid.tsx` | Center column: custom month calendar |
+| `TimeSlotList` | `src/components/TimeSlotList.tsx` | Right column: time slot list + Back/Continue |
+| `BookingForm` | `src/components/BookingForm.tsx` | Guest name/notes form with submit |
+| `ErrorAlert` | `src/components/ErrorAlert.tsx` | Error display with optional retry |
 
 ### Design Tokens
 
 | Token | Value | Usage |
 |---|---|---|
-| Background | `#F7F7F8` | Page background |
+| Landing background | `#FFFFFF` | Landing page / how-it-works |
+| Page background | `#F8FAFC` | Inner pages (book, scheduling, etc.) |
 | Surface | `#FFFFFF` | Card surface |
-| Border | `#E5E5E5` | Thin separators |
-| Text primary | `#1A1A1A` | Headings, selected states |
-| Text secondary | `#8C8C8C` | Meta, labels, muted text |
-| Accent | `#16A34A` (green.6) | Available dots, active states |
-| Radius (md) | `8px` | Buttons, cards, cells |
+| Border | `#E5E7EB` | Card borders, thin separators |
+| Text primary | `#111827` | Headings, labels, body text |
+| Text secondary | `#6B7280` | Meta, muted text, descriptions |
+| Accent orange | `#F97316` | Continue/Confirm buttons, selected highlights |
+| Success green | `#16A34A` | Available slot indicator, confirmation checkmark |
+| Radius | `14px` / `8px` | Cards / buttons, cells |

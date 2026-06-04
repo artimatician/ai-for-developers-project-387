@@ -32,10 +32,12 @@ cd frontend && npm run gen:types          # regenerate TypeScript types from Ope
 
 ## Frontend conventions
 
-- Guest-facing UI uses a **3-column scheduling card** layout: EventInfo | CalendarGrid | TimeSlotList
-- Components live in `frontend/src/components/` — `EventTypeList`, `SchedulingCard`, `EventInfo`, `CalendarGrid`, `TimeSlotList`, `BookingForm`
+- **Routes**: `/` (landing page with HeroSection), `/book` (event type selection grid), `/book/[id]` (scheduling page), `/book/[id]/confirm` (booking form), `/bookings/confirm` (post-booking confirmation), `/how-it-works`, `/owner/*` (owner pages)
+- **Landing page** uses `Navbar` (variant `"landing"`) + `HeroSection` with embedded how-it-works steps
+- **Scheduling page** (`/book/[id]`) uses a **3-column layout**: MeetingSummary | CalendarGrid | TimeSlotList
+- Components live in `frontend/src/components/` — `Navbar`, `HeroSection`, `EventTypeCard`, `ProfileIntroCard`, `MeetingSummary`, `SchedulingPage`, `CalendarGrid`, `TimeSlotList`, `BookingForm`, `ErrorAlert`
 - API client in `frontend/src/lib/api.ts`, types in `frontend/src/lib/api-types.ts` (auto-generated)
-- Design tokens: page bg `#F7F7F8`, card surface `#FFFFFF`, accent green `#16A34A`, primary text `#1A1A1A`
+- Design tokens: landing bg `#FFFFFF`, page bg `#F8FAFC`, card surface `#FFFFFF`, border `#E5E7EB`, text primary `#111827`, text secondary `#6B7280`, accent orange `#F97316`, success green `#16A34A`
 - Calendar is a custom component (NOT `@mantine/dates`) for full visual control
 - Slots are computed on-the-fly by the API; frontend groups by date in event type's timezone
 - Owner pages (`/owner/*`) — event types CRUD, bookings list, blackout management — unchanged
