@@ -146,86 +146,31 @@ function computeAvailableDates(slots: TimeSlot[], tz: string): Set<string> {
 }
 
   const calendarGridStyles = `
-  .cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .cal-nav-btn {
-    background: none;
-    border: 1px solid #E5E5E5;
-    border-radius: 6px;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #1A1A1A;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .cal-nav-btn:hover {
-    background: #F0F0F0;
-  }
-  .cal-month-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1A1A1A;
-  }
-  .cal-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    margin-bottom: 4px;
-  }
-  .cal-weekday {
-    text-align: center;
-    font-size: 11px;
-    color: #8C8C8C;
-    font-weight: 500;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-  .cal-cell {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    border-radius: 8px;
-    cursor: default;
-    transition: background 0.15s;
-  }
-  .cal-outside {
-    color: #D4D4D4;
-  }
-  .cal-past {
-    color: #8C8C8C;
-  }
-  .cal-outside-window {
-    color: #8C8C8C;
-  }
-  .cal-available {
-    color: #1A1A1A;
-    cursor: pointer;
-  }
-  .cal-available:hover {
-    background: #F0F0F0;
-  }
-  .cal-unavailable {
-    color: #CC8C8C;
-  }
-  .cal-selected {
-    background: #1A1A1A !important;
-    color: #FFFFFF !important;
-  }
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-nav-btn {
+  background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px;
+  width: 28px; height: 28px; cursor: pointer; font-size: 13px;
+  color: #111827; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.cal-nav-btn:hover { background: #F9FAFB; }
+.cal-month-label { font-size: 14px; font-weight: 600; color: #111827; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+.cal-weekday {
+  text-align: center; font-size: 11px; color: #6B7280; font-weight: 500;
+  height: 28px; display: flex; align-items: center; justify-content: center;
+}
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-cell {
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; border-radius: 8px; cursor: default; transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.cal-outside { color: #D1D5DB; }
+.cal-past { color: #9CA3AF; }
+.cal-outside-window { color: #9CA3AF; }
+.cal-available { color: #111827; cursor: pointer; }
+.cal-available:hover { background: #F3F4F6; }
+.cal-unavailable { color: #9CA3AF; }
+.cal-selected { background: #FFF7ED !important; border-color: #FDBA74 !important; color: #C2410C !important; font-weight: 600; }
 `;

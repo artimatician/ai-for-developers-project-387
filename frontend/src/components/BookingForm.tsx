@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, TextInput, Textarea, Button, Stack, Text, Group } from '@mantine/core';
+import { TextInput, Textarea, Button, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import { createBooking } from '@/lib/api';
 import { ApiError } from '@/lib/api-error';
@@ -12,10 +11,9 @@ interface BookingFormProps {
   eventTypeId: string;
   eventTypeName: string;
   startTime: string;
-  onSuccess: () => void;
 }
 
-export function BookingForm({ eventTypeId, eventTypeName, startTime, onSuccess }: BookingFormProps) {
+export function BookingForm({ eventTypeId, eventTypeName, startTime }: BookingFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -41,7 +39,6 @@ export function BookingForm({ eventTypeId, eventTypeName, startTime, onSuccess }
         guestName: values.guestName,
         notes: values.notes || undefined,
       });
-      onSuccess();
       const params = new URLSearchParams({
         startTime: result.startTime,
         endTime: result.endTime,
@@ -65,14 +62,25 @@ export function BookingForm({ eventTypeId, eventTypeName, startTime, onSuccess }
   };
 
   return (
-    <Box mt="sm" p="sm" style={{ border: '1px solid #E5E5E5', borderRadius: 8 }}>
+    <div style={{
+      backgroundColor: '#FFFFFF', borderRadius: 14, border: '1px solid #E5E7EB',
+      boxShadow: '0 1px 2px rgba(16,24,40,0.04)', padding: 28,
+    }}>
+      <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0, marginBottom: 8 }}>
+        Confirm your booking
+      </h2>
+      <p style={{ fontSize: 14, color: '#6B7280', margin: 0, marginBottom: 24, lineHeight: 1.5 }}>
+        Enter your details to book {eventTypeName}.
+      </p>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          <Text fw={500}>Book this slot</Text>
           {error && (
-            <Text c="red" size="sm">
+            <div style={{
+              backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8,
+              padding: '10px 14px', fontSize: 14, color: '#DC2626',
+            }}>
               {error}
-            </Text>
+            </div>
           )}
           <TextInput
             label="Your name"
@@ -86,13 +94,16 @@ export function BookingForm({ eventTypeId, eventTypeName, startTime, onSuccess }
             maxLength={1000}
             {...form.getInputProps('notes')}
           />
-          <Group justify="flex-end">
-            <Button type="submit" loading={submitting}>
-              Confirm Booking
-            </Button>
-          </Group>
+          <Button
+            type="submit"
+            loading={submitting}
+            fullWidth
+            style={{ backgroundColor: '#F97316', color: '#FFFFFF', borderRadius: 8 }}
+          >
+            Confirm Booking
+          </Button>
         </Stack>
       </form>
-    </Box>
+    </div>
   );
 }
