@@ -1,8 +1,9 @@
 import os
+import dj_database_url
 
-SECRET_KEY = 'dev-only-insecure-key'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-only-insecure-key')
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
@@ -19,13 +20,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'file:memory?mode=memory&cache=shared',
-        'OPTIONS': {'uri': True},
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'file:memory?mode=memory&cache=shared',
+            'OPTIONS': {'uri': True},
+        }
     }
-}
 
 CORS_ALLOW_ALL_ORIGINS = True
 
