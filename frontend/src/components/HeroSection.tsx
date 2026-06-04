@@ -61,7 +61,7 @@ export function HeroSection() {
             marginRight: 'auto',
           }}
         >
-          The better way to schedule meetings
+          Effortless meeting scheduling
         </h1>
 
         <Text
