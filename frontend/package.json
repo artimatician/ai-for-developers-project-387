@@ -11,6 +11,7 @@
     "gen:types": "openapi-typescript ../spec/tsp-output/openapi.yaml -o src/lib/api-types.ts"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
     "@mantine/core": "^7.15.0",
     "@mantine/dates": "^7.15.0",
     "@mantine/form": "^7.15.0",

@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { Group, Button } from '@mantine/core';
 import type { components } from '@/lib/api-types';
-import { BookingForm } from './BookingForm';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -20,7 +19,8 @@ interface TimeSlotListProps {
   slots: TimeSlot[];
   selectedSlot: string | null;
   onSlotSelect: (startTime: string) => void;
-  onBookingSuccess: () => void;
+  onBack: () => void;
+  onContinue: () => void;
 }
 
 export function TimeSlotList({
@@ -31,7 +31,8 @@ export function TimeSlotList({
   slots,
   selectedSlot,
   onSlotSelect,
-  onBookingSuccess,
+  onBack,
+  onContinue,
 }: TimeSlotListProps) {
   const daySlots = selectedDate
     ? slots.filter((s) => {
@@ -47,79 +48,58 @@ export function TimeSlotList({
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        {dayLabel || 'Select a date'}
+        {dayLabel ? `Available times — ${dayLabel}` : 'Select a date'}
       </div>
       <div style={styles.slotList}>
         {daySlots.length === 0 && selectedDate && (
-          <div style={styles.empty}>No slots available for this date.</div>
+          <div style={styles.empty}>No time slots available for this date.</div>
         )}
         {daySlots.map((slot) => {
-          const timeLabel = dayjs(slot.startTime).tz(timezone).format('h:mm A');
+          const timeLabel = `${dayjs(slot.startTime).tz(timezone).format('h:mm A')} – ${dayjs(slot.endTime).tz(timezone).format('h:mm A')}`;
           const isSelected = selectedSlot === slot.startTime;
           return (
-            <div key={slot.startTime}>
-              <button
-                style={getSlotStyle(slot.available, isSelected)}
-                disabled={!slot.available}
-                onClick={() => {
-                  if (slot.available) {
-                    onSlotSelect(slot.startTime);
-                  }
-                }}
-              >
-                {isSelected ? (
-                  <span style={styles.slotTimeSelected}>{timeLabel}</span>
-                ) : (
-                  <>
-                    <span style={{
-                      ...styles.dot,
-                      backgroundColor: slot.available ? '#16A34A' : '#D4D4D4',
-                    }} />
-                    <span style={{
-                      ...styles.slotTime,
-                      color: slot.available ? '#1A1A1A' : '#8C8C8C',
-                    }}>
-                      {timeLabel}
-                    </span>
-                  </>
-                )}
-              </button>
-              {isSelected && (
-                <div style={styles.bookingForm}>
-                  <BookingForm
-                    eventTypeId={eventTypeId}
-                    eventTypeName={eventTypeName}
-                    startTime={selectedSlot!}
-                    onSuccess={onBookingSuccess}
-                  />
-                </div>
-              )}
+            <div
+              key={slot.startTime}
+              onClick={() => {
+                if (slot.available) onSlotSelect(slot.startTime);
+              }}
+              style={{
+                ...styles.slotItem,
+                backgroundColor: isSelected ? '#FFF7ED' : '#FFFFFF',
+                borderColor: isSelected ? '#FDBA74' : '#E5E7EB',
+                cursor: slot.available ? 'pointer' : 'not-allowed',
+                opacity: slot.available ? 1 : 0.5,
+              }}
+            >
+              <span style={{ fontSize: 14, color: isSelected ? '#C2410C' : '#111827' }}>
+                {timeLabel}
+              </span>
+              <span style={{ fontSize: 12, color: slot.available ? '#16A34A' : '#9CA3AF' }}>
+                {slot.available ? 'Free' : 'Busy'}
+              </span>
             </div>
           );
         })}
       </div>
+      <div style={{ marginTop: 'auto', paddingTop: 16 }}>
+        <Group justify="space-between">
+          <Button variant="outline" onClick={onBack} style={{ borderRadius: 8, borderColor: '#E5E7EB', color: '#111827' }}>
+            Back
+          </Button>
+          <Button
+            onClick={onContinue}
+            disabled={!selectedSlot}
+            style={{
+              backgroundColor: '#F97316', color: '#FFFFFF', borderRadius: 8,
+              opacity: selectedSlot ? 1 : 0.5,
+            }}
+          >
+            Continue
+          </Button>
+        </Group>
+      </div>
     </div>
   );
-}
-
-function getSlotStyle(available: boolean, selected: boolean): React.CSSProperties {
-  if (selected) {
-    return {
-      ...styles.slotButton,
-      backgroundColor: '#1A1A1A',
-      color: '#FFFFFF',
-      border: '1px solid #1A1A1A',
-      cursor: 'default',
-    };
-  }
-  return {
-    ...styles.slotButton,
-    backgroundColor: '#FFFFFF',
-    color: '#1A1A1A',
-    border: '1px solid #E5E5E5',
-    cursor: available ? 'pointer' : 'not-allowed',
-    opacity: available ? 1 : 0.5,
-  };
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -131,7 +111,7 @@ const styles: Record<string, React.CSSProperties> = {
   header: {
     fontSize: 16,
     fontWeight: 600,
-    color: '#1A1A1A',
+    color: '#111827',
     marginBottom: 16,
   },
   slotList: {
@@ -139,40 +119,21 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column',
     gap: 8,
     overflowY: 'auto',
-    maxHeight: 400,
     flex: 1,
   },
-  slotButton: {
+  slotItem: {
     display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
-    width: '100%',
-    padding: '8px 12px',
+    padding: '10px 14px',
+    border: '1px solid #E5E7EB',
     borderRadius: 8,
-    fontSize: 14,
-    transition: 'border-color 0.15s',
-    textAlign: 'left' as const,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
-    flexShrink: 0,
-  },
-  slotTime: {
-    lineHeight: 1,
-  },
-  slotTimeSelected: {
-    lineHeight: 1,
-    fontWeight: 500,
+    transition: 'background 0.15s, border-color 0.15s',
   },
   empty: {
-    color: '#8C8C8C',
+    color: '#9CA3AF',
     fontSize: 14,
     textAlign: 'center',
     padding: 24,
-  },
-  bookingForm: {
-    marginTop: 4,
   },
 };

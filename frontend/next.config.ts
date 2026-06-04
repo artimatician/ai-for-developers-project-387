@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/event-types/:id',
+        destination: '/book/:id',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
