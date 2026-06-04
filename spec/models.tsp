@@ -5,6 +5,10 @@ using TypeSpec.Http;
 using TypeSpec.Rest;
 
 @doc("Error response body")
+@example(#{
+  code: "NOT_FOUND",
+  message: "The requested resource was not found"
+})
 @error
 model Error {
   @doc("Machine-readable error code")
@@ -14,6 +18,14 @@ model Error {
 }
 
 @doc("Full event type resource returned to the owner")
+@example(#{
+  id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  name: "30-min Consultation",
+  description: "Quick introductory call to discuss your needs",
+  timezone: "America/New_York",
+  isActive: true,
+  createdAt: utcDateTime.fromISO("2026-01-15T10:00:00Z")
+})
 model EventType {
   @doc("Unique identifier")
   @format("uuid")
@@ -33,6 +45,11 @@ model EventType {
 }
 
 @doc("Payload to create a new event type")
+@example(#{
+  name: "30-min Consultation",
+  description: "Quick introductory call to discuss your needs",
+  timezone: "America/New_York"
+})
 model CreateEventTypeRequest {
   @doc("Display name")
   @maxLength(1000)
@@ -45,6 +62,12 @@ model CreateEventTypeRequest {
 }
 
 @doc("Payload to partially update an event type")
+@example(#{
+  name: "60-min Deep Dive",
+  description: "Extended consultation for detailed discussion",
+  timezone: "America/Chicago",
+  isActive: false
+})
 model UpdateEventTypeRequest {
   @doc("Display name")
   @maxLength(1000)
@@ -59,6 +82,12 @@ model UpdateEventTypeRequest {
 }
 
 @doc("Public subset of event type fields shown in guest list")
+@example(#{
+  id: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  name: "30-min Consultation",
+  description: "Quick introductory call to discuss your needs",
+  timezone: "America/New_York"
+})
 model PublicEventType {
   @doc("Unique identifier")
   @format("uuid")
@@ -74,6 +103,16 @@ model PublicEventType {
 }
 
 @doc("Full booking resource returned to the owner")
+@example(#{
+  id: "c3d4e5f6-a7b8-9012-cdef-123456789012",
+  eventTypeId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  eventTypeName: "30-min Consultation",
+  guestName: "Alice Johnson",
+  notes: "Looking forward to discussing the project",
+  startTime: utcDateTime.fromISO("2026-02-01T15:00:00Z"),
+  endTime: utcDateTime.fromISO("2026-02-01T15:30:00Z"),
+  createdAt: utcDateTime.fromISO("2026-02-01T14:00:00Z")
+})
 model Booking {
   @doc("Unique identifier")
   @format("uuid")
@@ -98,6 +137,12 @@ model Booking {
 }
 
 @doc("Payload to create a new booking")
+@example(#{
+  eventTypeId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  startTime: utcDateTime.fromISO("2026-02-01T15:00:00Z"),
+  guestName: "Alice Johnson",
+  notes: "Looking forward to the call"
+})
 model CreateBookingRequest {
   @doc("ID of the event type to book (must be active)")
   @format("uuid")
@@ -113,6 +158,11 @@ model CreateBookingRequest {
 }
 
 @doc("Response returned to the guest after a successful booking")
+@example(#{
+  startTime: utcDateTime.fromISO("2026-02-01T15:00:00Z"),
+  endTime: utcDateTime.fromISO("2026-02-01T15:30:00Z"),
+  eventTypeName: "30-min Consultation"
+})
 model GuestBookingResponse {
   @doc("Start time (ISO 8601, UTC)")
   startTime: utcDateTime;
@@ -123,6 +173,13 @@ model GuestBookingResponse {
 }
 
 @doc("One-off time range that prevents new bookings")
+@example(#{
+  id: "d4e5f6a7-b8c9-0123-defa-234567890123",
+  startTime: utcDateTime.fromISO("2026-02-15T09:00:00Z"),
+  endTime: utcDateTime.fromISO("2026-02-15T17:00:00Z"),
+  reason: "Company offsite",
+  createdAt: utcDateTime.fromISO("2026-02-10T12:00:00Z")
+})
 model Blackout {
   @doc("Unique identifier")
   @format("uuid")
@@ -139,6 +196,11 @@ model Blackout {
 }
 
 @doc("Payload to create a blackout period")
+@example(#{
+  startTime: utcDateTime.fromISO("2026-02-15T09:00:00Z"),
+  endTime: utcDateTime.fromISO("2026-02-15T17:00:00Z"),
+  reason: "Company offsite"
+})
 model CreateBlackoutRequest {
   @doc("Start of blackout period (ISO 8601, UTC)")
   startTime: utcDateTime;
@@ -150,6 +212,11 @@ model CreateBlackoutRequest {
 }
 
 @doc("Computed time slot (not stored)")
+@example(#{
+  startTime: utcDateTime.fromISO("2026-02-01T15:00:00Z"),
+  endTime: utcDateTime.fromISO("2026-02-01T15:30:00Z"),
+  available: true
+})
 model TimeSlot {
   @doc("Slot start time (ISO 8601, UTC)")
   startTime: utcDateTime;
