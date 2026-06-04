@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Paper, TextInput, Textarea, Button, Stack, Text, Group } from '@mantine/core';
+import { Box, TextInput, Textarea, Button, Stack, Text, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import { createBooking } from '@/lib/api';
 import { ApiError } from '@/lib/api-error';
@@ -65,7 +64,7 @@ export function BookingForm({ eventTypeId, eventTypeName, startTime, onSuccess }
   };
 
   return (
-    <Paper withBorder p="md" mt="sm">
+    <Box mt="sm" p="sm" style={{ border: '1px solid #E5E5E5', borderRadius: 8 }}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <Text fw={500}>Book this slot</Text>
@@ -93,6 +92,6 @@ export function BookingForm({ eventTypeId, eventTypeName, startTime, onSuccess }
           </Group>
         </Stack>
       </form>
-    </Paper>
+    </Box>
   );
 }

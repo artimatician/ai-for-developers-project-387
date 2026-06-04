@@ -51,6 +51,26 @@ npm run build:spec    # Compile TypeSpec → OpenAPI YAML
 npm run gen:types     # Generate TypeScript types from OpenAPI spec
 ```
 
+## Component Architecture
+
+Guest-facing pages use a polished 3-column scheduling card layout:
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `EventTypeList` | Homepage (`/`) | Grid of event type cards with name, description, timezone badge |
+| `SchedulingCard` | `/event-types/[id]` | 3-column shell assembling the scheduling UI |
+| `EventInfo` | SchedulingCard (col 1) | Host avatar, name, event title, duration/platform/timezone |
+| `CalendarGrid` | SchedulingCard (col 2) | Custom month calendar with date availability detection |
+| `TimeSlotList` | SchedulingCard (col 3) | Scrollable time slot list with inline booking form |
+| `BookingForm` | Inside TimeSlotList | Guest name + notes form, creates booking on submit |
+
+Owner pages (event types CRUD, bookings list, blackout management) remain unchanged under `/owner/`.
+
+### Responsive Behavior
+
+- **Desktop (≥768px):** 3 columns side by side (EventInfo | CalendarGrid | TimeSlotList)
+- **Mobile (<768px):** Columns stack vertically, borders become horizontal dividers
+
 ## Environment
 
 | File | Purpose |
