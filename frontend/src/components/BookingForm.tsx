@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Box, TextInput, Textarea, Button, Stack, Text, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import { createBooking } from '@/lib/api';
 import { ApiError } from '@/lib/api-error';

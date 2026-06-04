@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -45,7 +46,6 @@ export function TimeSlotList({
 
   return (
     <div style={styles.container}>
-      <style>{slotListStyles}</style>
       <div style={styles.header}>
         {dayLabel || 'Select a date'}
       </div>
@@ -59,7 +59,6 @@ export function TimeSlotList({
           return (
             <div key={slot.startTime}>
               <button
-                className={slot.available ? 'tslot-btn-available' : 'tslot-btn-unavailable'}
                 style={getSlotStyle(slot.available, isSelected)}
                 disabled={!slot.available}
                 onClick={() => {
@@ -102,15 +101,6 @@ export function TimeSlotList({
     </div>
   );
 }
-
-const slotListStyles = `
-  .tslot-btn-available:hover {
-    border-color: #CCCCCC !important;
-  }
-  .tslot-btn-unavailable {
-    cursor: not-allowed;
-  }
-`;
 
 function getSlotStyle(available: boolean, selected: boolean): React.CSSProperties {
   if (selected) {

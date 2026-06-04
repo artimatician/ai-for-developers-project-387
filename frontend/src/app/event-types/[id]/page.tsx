@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { use } from 'react';
-import { Skeleton } from '@mantine/core';
 import { getActiveEventType, getSlots } from '@/lib/api';
 import { SchedulingCard } from '@/components/SchedulingCard';
 import type { components } from '@/lib/api-types';
@@ -41,10 +40,12 @@ export default function EventTypePage({
   if (loading) {
     return (
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 16px' }}>
-        <Skeleton height={480} radius="md" />
-        <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <Skeleton height={12} width={120} radius="md" style={{ margin: '0 auto' }} />
-        </div>
+        <div style={{
+          height: 480,
+          borderRadius: 12,
+          backgroundColor: '#E5E5E5',
+          animation: 'pulse 1.5s infinite',
+        }} />
       </div>
     );
   }

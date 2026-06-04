@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -49,12 +49,11 @@ export function SchedulingCard({ eventType, slots }: SchedulingCardProps) {
 
   return (
     <div style={styles.wrapper}>
-      <style>{responsiveStyles}</style>
-      <div className="scheduling-card" style={styles.card}>
-        <div className="scheduling-col" style={styles.columnLeft}>
+      <div style={styles.card}>
+        <div style={styles.columnLeft}>
           <EventInfo eventType={eventType} />
         </div>
-        <div className="scheduling-col scheduling-col-center" style={styles.columnCenter}>
+        <div style={styles.columnCenter}>
           <CalendarGrid
             timezone={eventType.timezone}
             slots={slots}
@@ -62,7 +61,7 @@ export function SchedulingCard({ eventType, slots }: SchedulingCardProps) {
             onDateSelect={handleDateSelect}
           />
         </div>
-        <div className="scheduling-col" style={styles.columnRight}>
+        <div style={styles.columnRight}>
           <TimeSlotList
             eventTypeId={eventType.id}
             eventTypeName={eventType.name}
@@ -79,25 +78,6 @@ export function SchedulingCard({ eventType, slots }: SchedulingCardProps) {
     </div>
   );
 }
-
-const responsiveStyles = `
-  @media (max-width: 767px) {
-    .scheduling-card {
-      flex-direction: column !important;
-    }
-    .scheduling-col {
-      width: 100% !important;
-      border-right: none !important;
-      border-bottom: 1px solid #E5E5E5 !important;
-    }
-    .scheduling-col-center {
-      border-bottom: 1px solid #E5E5E5 !important;
-    }
-    .scheduling-card .scheduling-col:last-child {
-      border-bottom: none !important;
-    }
-  }
-`;
 
 const styles: Record<string, React.CSSProperties> = {
   wrapper: {
