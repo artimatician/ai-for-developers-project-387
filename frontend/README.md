@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Schedule a Call — Frontend
 
-## Getting Started
+Next.js frontend for the appointment scheduling service.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js >= 18
+- npm
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running with Mock API
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Starts both the mock API server (Stoplight Prism) and the Next.js dev server with a single command:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+./start-mock.sh
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-To learn more about Next.js, take a look at the following resources:
+The script:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Compiles the TypeSpec spec to OpenAPI YAML
+2. Kills any stale processes on ports 3000/4010
+3. Starts Prism mock API server on port 4010
+4. Waits for the mock server to respond to health checks
+5. Starts Next.js dev server on port 3000
+6. Cleans up all servers on Ctrl+C
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Running Servers Separately
 
-## Deploy on Vercel
+For more control, run each server in its own terminal:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Terminal 1 — Mock API (compiles spec + starts Prism on port 4010)
+npm run mock:api
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Terminal 2 — Next.js dev server (port 3000)
+npm run dev
+```
+
+## Other Commands
+
+```bash
+npm run build:spec    # Compile TypeSpec → OpenAPI YAML
+npm run gen:types     # Generate TypeScript types from OpenAPI spec
+```
+
+## Environment
+
+| File | Purpose |
+|---|---|
+| `.env.development` | Used by `next dev`. Points `NEXT_PUBLIC_API_URL` to `http://localhost:4010` (mock API) |
+| `.env.local` | Create this to override for the real Django backend (`http://localhost:8000`) |
