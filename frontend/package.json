@@ -1,0 +1,33 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "build:spec": "cd ../spec && npx tsp compile main.tsp",
+    "mock:api": "npm run build:spec && prism mock ../spec/tsp-output/openapi.yaml --port 4010",
+    "gen:types": "openapi-typescript ../spec/tsp-output/openapi.yaml -o src/lib/api-types.ts"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.15.0",
+    "@mantine/dates": "^7.15.0",
+    "@mantine/form": "^7.15.0",
+    "@mantine/hooks": "^7.15.0",
+    "@mantine/notifications": "^7.15.0",
+    "@tabler/icons-react": "^3.44.0",
+    "dayjs": "^1.11.21",
+    "next": "16.2.7",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@stoplight/prism-cli": "^5.15.11",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5"
+  }
+}
