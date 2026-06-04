@@ -38,7 +38,7 @@ npx tsp compile main.tsp
 echo ""
 echo "=== Starting Prism mock API server on port $PRISM_PORT ==="
 cd "$SCRIPT_DIR"
-npx prism mock "../spec/tsp-output/@typespec/openapi3/openapi.yaml" --port "$PRISM_PORT" &
+npx prism mock "../spec/tsp-output/@typespec/openapi3/openapi.yaml" --port "$PRISM_PORT" --host 0.0.0.0 &
 PRISM_PID=$!
 
 echo "Waiting for mock API server to be ready..."

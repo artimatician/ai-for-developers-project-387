@@ -10,9 +10,9 @@ type Booking = components['schemas']['Booking'];
 
 function getBaseUrl(): string {
   if (typeof window === 'undefined') {
-    return process.env.API_URL || 'http://localhost:8000';
+    return process.env.API_URL || 'http://localhost:4010';
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  return process.env.NEXT_PUBLIC_API_URL || window.location.origin;
 }
 
 async function request<T>(

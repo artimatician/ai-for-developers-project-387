@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "build:spec": "cd ../spec && npx tsp compile main.tsp",
-    "mock:api": "npm run build:spec && prism mock ../spec/tsp-output/openapi.yaml --port 4010",
+    "mock:api": "npm run build:spec && prism mock ../spec/tsp-output/@typespec/openapi3/openapi.yaml --port 4010 --host 0.0.0.0",
     "gen:types": "openapi-typescript ../spec/tsp-output/openapi.yaml -o src/lib/api-types.ts"
   },
   "dependencies": {
