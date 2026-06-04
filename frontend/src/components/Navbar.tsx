@@ -18,6 +18,9 @@ export function Navbar({ variant }: NavbarProps) {
             <Text size="sm" fw={600} c="#111827">Calendar</Text>
           </Group>
           <Group gap={12}>
+            <Text component={Link} href="/how-it-works" size="sm" fw={500} c="#6B7280">
+              How it works
+            </Text>
             <Text component={Link} href="/owner/event-types" size="sm" fw={500} c="#6B7280">
               Log in
             </Text>

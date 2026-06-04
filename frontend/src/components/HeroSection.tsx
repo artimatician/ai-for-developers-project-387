@@ -42,6 +42,8 @@ export function HeroSection() {
               Start booking →
             </Button>
             <Button
+              component={Link}
+              href="/how-it-works"
               variant="outline"
               style={{ borderColor: '#E5E7EB', color: '#111827', borderRadius: 8 }}
             >
