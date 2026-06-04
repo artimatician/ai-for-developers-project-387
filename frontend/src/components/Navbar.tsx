@@ -13,7 +13,7 @@ export function Navbar({ variant }: NavbarProps) {
     return (
       <Box style={{ borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Group gap={8}>
+          <Group component={Link} href="/" gap={8} style={{ cursor: 'pointer', textDecoration: 'none' }}>
             <IconCalendar size={18} color="#111827" />
             <Text size="sm" fw={600} c="#111827">Calendar</Text>
           </Group>
@@ -40,7 +40,7 @@ export function Navbar({ variant }: NavbarProps) {
   return (
     <Box style={{ borderBottom: '1px solid #E5E7EB' }}>
       <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Group gap={8}>
+        <Group component={Link} href="/" gap={8} style={{ cursor: 'pointer', textDecoration: 'none' }}>
           <IconCalendar size={18} color="#111827" />
           <Text size="sm" fw={600} c="#111827">Calendar</Text>
         </Group>
