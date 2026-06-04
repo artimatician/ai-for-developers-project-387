@@ -1,6 +1,7 @@
 'use client';
+
 import { useEffect, useState } from 'react';
-import { Container, SimpleGrid, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
 import { Navbar } from '@/components/Navbar';
 import { ProfileIntroCard } from '@/components/ProfileIntroCard';
 import { EventTypeCard } from '@/components/EventTypeCard';
@@ -29,31 +30,29 @@ export default function BookPage() {
   const content = () => {
     if (loading) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ height: 160, backgroundColor: '#E5E5E5', borderRadius: 16 }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ height: 120, backgroundColor: '#E5E5E5', borderRadius: 14 }} />
-            <div style={{ height: 120, backgroundColor: '#E5E5E5', borderRadius: 14 }} />
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ height: 80, backgroundColor: '#E5E5E5', borderRadius: 10 }} />
+          <div style={{ height: 80, backgroundColor: '#E5E5E5', borderRadius: 10 }} />
+          <div style={{ height: 80, backgroundColor: '#E5E5E5', borderRadius: 10 }} />
         </div>
       );
     }
     if (error) return <ErrorAlert message={error} onRetry={fetchData} />;
     if (eventTypes.length === 0) return <Text ta="center" c="#6B7280" py="xl">No event types available yet.</Text>;
     return (
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={16}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {eventTypes.map((et) => <EventTypeCard key={et.id} eventType={et} />)}
-      </SimpleGrid>
+      </div>
     );
   };
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
       <Navbar variant="inner" />
-      <Container size={820} py={48}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '48px 24px' }}>
         <ProfileIntroCard />
-        <div style={{ marginTop: 24 }}>{content()}</div>
-      </Container>
+        <div style={{ marginTop: 8 }}>{content()}</div>
+      </div>
     </div>
   );
 }

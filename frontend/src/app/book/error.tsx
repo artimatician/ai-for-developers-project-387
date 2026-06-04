@@ -1,5 +1,4 @@
 'use client';
-import { Container } from '@mantine/core';
 import { ErrorAlert } from '@/components/ErrorAlert';
 
 export default function Error({
@@ -11,9 +10,9 @@ export default function Error({
 }) {
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
-      <Container size={820} py={48}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '48px 24px' }}>
         <ErrorAlert message={error.message} onRetry={reset} />
-      </Container>
+      </div>
     </div>
   );
 }
