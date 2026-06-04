@@ -181,7 +181,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description One-off time range that prevents new bookings */
+        /**
+         * @description One-off time range that prevents new bookings
+         * @example {
+         *       "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+         *       "startTime": "2026-02-15T09:00:00Z",
+         *       "endTime": "2026-02-15T17:00:00Z",
+         *       "reason": "Company offsite",
+         *       "createdAt": "2026-02-10T12:00:00Z"
+         *     }
+         */
         Blackout: {
             /**
              * Format: uuid
@@ -206,7 +215,19 @@ export interface components {
              */
             createdAt: string;
         };
-        /** @description Full booking resource returned to the owner */
+        /**
+         * @description Full booking resource returned to the owner
+         * @example {
+         *       "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+         *       "eventTypeId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+         *       "eventTypeName": "30-min Consultation",
+         *       "guestName": "Alice Johnson",
+         *       "notes": "Looking forward to discussing the project",
+         *       "startTime": "2026-02-01T15:00:00Z",
+         *       "endTime": "2026-02-01T15:30:00Z",
+         *       "createdAt": "2026-02-01T14:00:00Z"
+         *     }
+         */
         Booking: {
             /**
              * Format: uuid
@@ -240,7 +261,14 @@ export interface components {
              */
             createdAt: string;
         };
-        /** @description Payload to create a blackout period */
+        /**
+         * @description Payload to create a blackout period
+         * @example {
+         *       "startTime": "2026-02-15T09:00:00Z",
+         *       "endTime": "2026-02-15T17:00:00Z",
+         *       "reason": "Company offsite"
+         *     }
+         */
         CreateBlackoutRequest: {
             /**
              * Format: date-time
@@ -255,7 +283,15 @@ export interface components {
             /** @description Optional reason */
             reason?: string;
         };
-        /** @description Payload to create a new booking */
+        /**
+         * @description Payload to create a new booking
+         * @example {
+         *       "eventTypeId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+         *       "startTime": "2026-02-01T15:00:00Z",
+         *       "guestName": "Alice Johnson",
+         *       "notes": "Looking forward to the call"
+         *     }
+         */
         CreateBookingRequest: {
             /**
              * Format: uuid
@@ -272,7 +308,14 @@ export interface components {
             /** @description Optional notes */
             notes?: string;
         };
-        /** @description Payload to create a new event type */
+        /**
+         * @description Payload to create a new event type
+         * @example {
+         *       "name": "30-min Consultation",
+         *       "description": "Quick introductory call to discuss your needs",
+         *       "timezone": "America/New_York"
+         *     }
+         */
         CreateEventTypeRequest: {
             /** @description Display name */
             name: string;
@@ -281,14 +324,30 @@ export interface components {
             /** @description IANA timezone identifier (default: UTC) */
             timezone?: string;
         };
-        /** @description Error response body */
+        /**
+         * @description Error response body
+         * @example {
+         *       "code": "NOT_FOUND",
+         *       "message": "The requested resource was not found"
+         *     }
+         */
         Error: {
             /** @description Machine-readable error code */
             code: string;
             /** @description Human-readable description */
             message: string;
         };
-        /** @description Full event type resource returned to the owner */
+        /**
+         * @description Full event type resource returned to the owner
+         * @example {
+         *       "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+         *       "name": "30-min Consultation",
+         *       "description": "Quick introductory call to discuss your needs",
+         *       "timezone": "America/New_York",
+         *       "isActive": true,
+         *       "createdAt": "2026-01-15T10:00:00Z"
+         *     }
+         */
         EventType: {
             /**
              * Format: uuid
@@ -309,7 +368,14 @@ export interface components {
              */
             createdAt: string;
         };
-        /** @description Response returned to the guest after a successful booking */
+        /**
+         * @description Response returned to the guest after a successful booking
+         * @example {
+         *       "startTime": "2026-02-01T15:00:00Z",
+         *       "endTime": "2026-02-01T15:30:00Z",
+         *       "eventTypeName": "30-min Consultation"
+         *     }
+         */
         GuestBookingResponse: {
             /**
              * Format: date-time
@@ -324,7 +390,15 @@ export interface components {
             /** @description Event type name at time of booking */
             eventTypeName: string;
         };
-        /** @description Public subset of event type fields shown in guest list */
+        /**
+         * @description Public subset of event type fields shown in guest list
+         * @example {
+         *       "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+         *       "name": "30-min Consultation",
+         *       "description": "Quick introductory call to discuss your needs",
+         *       "timezone": "America/New_York"
+         *     }
+         */
         PublicEventType: {
             /**
              * Format: uuid
@@ -338,7 +412,14 @@ export interface components {
             /** @description IANA timezone identifier */
             timezone: string;
         };
-        /** @description Computed time slot (not stored) */
+        /**
+         * @description Computed time slot (not stored)
+         * @example {
+         *       "startTime": "2026-02-01T15:00:00Z",
+         *       "endTime": "2026-02-01T15:30:00Z",
+         *       "available": true
+         *     }
+         */
         TimeSlot: {
             /**
              * Format: date-time
@@ -353,7 +434,15 @@ export interface components {
             /** @description Whether the slot can be booked */
             available: boolean;
         };
-        /** @description Payload to partially update an event type */
+        /**
+         * @description Payload to partially update an event type
+         * @example {
+         *       "name": "60-min Deep Dive",
+         *       "description": "Extended consultation for detailed discussion",
+         *       "timezone": "America/Chicago",
+         *       "isActive": false
+         *     }
+         */
         UpdateEventTypeRequest: {
             /** @description Display name */
             name?: string;
