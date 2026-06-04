@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Title, Table, Badge, Anchor } from '@mantine/core';
-import Link from 'next/link';
+import { Container, Title } from '@mantine/core';
 import { listActiveEventTypes } from '@/lib/api';
 import type { components } from '@/lib/api-types';
 import { ErrorAlert } from '@/components/ErrorAlert';
+import { EventTypeList } from '@/components/EventTypeList';
 
 type PublicEventType = components['schemas']['PublicEventType'];
 
@@ -46,39 +46,10 @@ export default function HomePage() {
 
   return (
     <Container size="lg" py="xl">
-      <Title order={1} mb="lg">
+      <Title order={1} mb="lg" style={{ color: '#1A1A1A' }}>
         Available Event Types
       </Title>
-      {eventTypes.length === 0 ? (
-        <p>No event types available.</p>
-      ) : (
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Name</Table.Th>
-              <Table.Th>Description</Table.Th>
-              <Table.Th>Timezone</Table.Th>
-              <Table.Th>Action</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {eventTypes.map((et) => (
-              <Table.Tr key={et.id}>
-                <Table.Td>{et.name}</Table.Td>
-                <Table.Td>{et.description}</Table.Td>
-                <Table.Td>
-                  <Badge variant="light">{et.timezone}</Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Anchor component={Link} href={`/event-types/${et.id}`}>
-                    Book
-                  </Anchor>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
+      <EventTypeList eventTypes={eventTypes} />
     </Container>
   );
 }

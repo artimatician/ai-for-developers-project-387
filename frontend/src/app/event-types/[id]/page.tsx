@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Title, Badge, Group } from '@mantine/core';
 import { use } from 'react';
+import { Skeleton } from '@mantine/core';
 import { getActiveEventType, getSlots } from '@/lib/api';
-import { SlotPicker } from '@/components/SlotPicker';
+import { SchedulingCard } from '@/components/SchedulingCard';
 import type { components } from '@/lib/api-types';
 import { ErrorAlert } from '@/components/ErrorAlert';
 
@@ -40,36 +40,24 @@ export default function EventTypePage({
 
   if (loading) {
     return (
-      <Container size="lg" py="xl">
-        <p>Loading...</p>
-      </Container>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 16px' }}>
+        <Skeleton height={480} radius="md" />
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Skeleton height={12} width={120} radius="md" style={{ margin: '0 auto' }} />
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container size="lg" py="xl">
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 16px' }}>
         <ErrorAlert message={error} onRetry={fetchData} />
-      </Container>
+      </div>
     );
   }
 
   if (!eventType) return null;
 
-  return (
-    <Container size="lg" py="xl">
-      <Group mb="xl">
-        <Title order={1}>{eventType.name}</Title>
-        <Badge variant="light" size="lg">
-          {eventType.timezone}
-        </Badge>
-      </Group>
-      <SlotPicker
-        eventTypeId={eventType.id}
-        eventTypeName={eventType.name}
-        timezone={eventType.timezone}
-        slots={slots}
-      />
-    </Container>
-  );
+  return <SchedulingCard eventType={eventType} slots={slots} />;
 }
