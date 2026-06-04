@@ -495,15 +495,4 @@ frontend/
 
 ---
 
-## Next Steps
 
-1. Scaffold Django project (`django-admin startproject`)
-2. Configure DRF, set up `appointments` app
-3. Implement Django models: `EventType`, `Booking`, `Blackout`
-4. Implement DRF serializers + views matching OpenAPI spec
-5. Wire Django URLs under `/api/` prefix
-6. Scaffold Next.js app (`create-next-app`)
-7. Build API client and shared components
-8. Build owner pages (event types, bookings, blackouts)
-9. Build guest pages (event type list, slot picker, booking form)
-10. Connect frontend to backend, test full flow end-to-end
