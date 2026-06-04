@@ -1,28 +1,32 @@
 # Calendar (Schedule a Call)
 
-Project structure: **TypeSpec API spec** (done), **Next.js frontend** (done), **Django backend** (not built yet).
+Project structure: **TypeSpec API spec** (done), **Next.js frontend** (done), **Django backend** (done).
 
 ## Commands
 
 ```sh
-cd spec && npm install && npm test       # compile TypeSpec + run 32 validation checks
-cd frontend && npm install && npm run dev  # start Next.js dev server (port 3000)
-cd frontend && ./start-mock.sh            # full stack: mock API (4010) + Next.js (3000)
-cd frontend && npm run build              # production build
-cd frontend && npm run build:spec         # compile TypeSpec → OpenAPI YAML
-cd frontend && npm run gen:types          # regenerate TypeScript types from OpenAPI spec
+cd spec && npm install && npm test                    # compile TypeSpec + run 32 validation checks
+cd backend && python3 manage.py test                  # run 54 backend tests
+./start.sh                                            # start backend (4010) + frontend (3000)
+cd frontend && npm run dev                            # start Next.js dev server only (port 3000)
+cd frontend && npm run build                          # production build
+cd frontend && npm run build:spec                     # compile TypeSpec → OpenAPI YAML
+cd frontend && npm run gen:types                      # regenerate TypeScript types from OpenAPI spec
 ```
 
 ## Structure
 
 - `spec/*.tsp` — TypeSpec API spec (entrypoint `main.tsp`, models, owner/guest ops)
-- `frontend/` — Next.js 16 + Mantine 7 app
+- `backend/` — Django + DRF REST API (port 4010)
+- `frontend/` — Next.js 16 + Mantine 7 app (port 3000)
 - `PLAN.md` — full design doc (data models, endpoints, business rules, slot algorithm)
+- `BACKEND_PLAN.md` — backend implementation plan
 
 ## Key conventions
 
-- Backend: Django + DRF REST API under `/api/` (not built yet)
+- Backend: Django + DRF REST API under `/api/`, SQLite `:memory:` (resets on restart)
 - Frontend: Next.js 16 (App Router), Mantine 7, `@tabler/icons-react`, `dayjs` with timezone plugin
+- Frontend proxies `/api/*` to backend via `next.config.ts` rewrite
 - All endpoints under `/api`, no version prefix
 - Owner endpoints prefixed `/api/owner/`, guest endpoints `/api/`
 - UUID v4 resource IDs, ISO 8601 UTC datetimes
@@ -41,6 +45,18 @@ cd frontend && npm run gen:types          # regenerate TypeScript types from Ope
 - Calendar is a custom component (NOT `@mantine/dates`) for full visual control
 - Slots are computed on-the-fly by the API; frontend groups by date in event type's timezone
 - Owner pages (`/owner/*`) — event types CRUD, bookings list, blackout management — unchanged
+
+## Backend conventions
+
+- **Stack**: Django 6.0 + DRF, SQLite `:memory:` (shared cache URI), port 4010
+- **Models**: EventType, Booking, Blackout — all with UUID v4 PKs
+- **Slot algorithm**: 14-day window starting from today in event type's timezone, 09:00–18:00 operating hours, 30-min slots
+- **Conflict model**: Booking and blackout conflicts are global (across all event types)
+- **Error format**: All errors return `{ "code": "...", "message": "..." }`
+- **Error codes**: `INVALID_INPUT` (400), `EVENT_TYPE_NOT_FOUND` (404), `EVENT_TYPE_INACTIVE` (404), `BLACKOUT_NOT_FOUND` (404), `SLOT_UNAVAILABLE` (409)
+- **Auto-migration**: Tables created on startup via `AppConfig.ready()`
+- **No migrations directory**: Uses `--run-syncdb` instead of Django migrations
+- **54 tests** across 5 test suites: health, event types, bookings, blackouts, slots
 
 ## Spec conventions
 
