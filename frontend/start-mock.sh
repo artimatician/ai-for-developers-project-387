@@ -18,9 +18,10 @@ cleanup() {
 
 trap cleanup EXIT
 
-# Kill any existing dev servers on the target ports
+echo "Cleaning up existing processes on ports $PRISM_PORT (Prism) and $DEV_PORT (Next.js)..."
+
 for port in $PRISM_PORT $DEV_PORT; do
-  fuser -k "$port/tcp" 2>/dev/null || true
+  fuser -k "$port/tcp" >/dev/null 2>&1 || true
 done
 
 # Kill any lingering Next.js dev server processes (they use .next/dev/ for tracking)
