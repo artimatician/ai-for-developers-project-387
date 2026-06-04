@@ -50,6 +50,8 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
   const daysInMonth = firstOfMonth.daysInMonth();
   const daysInPrevMonth = firstOfMonth.subtract(1, 'month').daysInMonth();
 
+  const todayStr = today.format('YYYY-MM-DD');
+
   const cells: { day: number; dateKey: string | null }[] = [];
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
     cells.push({ day: daysInPrevMonth - i, dateKey: null });
@@ -131,16 +133,19 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
 
 function computeAvailableDates(slots: TimeSlot[], tz: string): Set<string> {
   const available = new Set<string>();
+  const hasOnlyUnavailable = new Set<string>();
   for (const slot of slots) {
     const key = dayjs(slot.startTime).tz(tz).format('YYYY-MM-DD');
     if (slot.available) {
       available.add(key);
+    } else {
+      hasOnlyUnavailable.add(key);
     }
   }
   return available;
 }
 
-const calendarGridStyles = `
+  const calendarGridStyles = `
   .cal-header {
     display: flex;
     align-items: center;

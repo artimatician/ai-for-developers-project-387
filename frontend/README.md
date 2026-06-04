@@ -51,29 +51,43 @@ npm run build:spec    # Compile TypeSpec → OpenAPI YAML
 npm run gen:types     # Generate TypeScript types from OpenAPI spec
 ```
 
-## Component Architecture
-
-Guest-facing pages use a polished 3-column scheduling card layout:
-
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| `EventTypeList` | Homepage (`/`) | Grid of event type cards with name, description, timezone badge |
-| `SchedulingCard` | `/event-types/[id]` | 3-column shell assembling the scheduling UI |
-| `EventInfo` | SchedulingCard (col 1) | Host avatar, name, event title, duration/platform/timezone |
-| `CalendarGrid` | SchedulingCard (col 2) | Custom month calendar with date availability detection |
-| `TimeSlotList` | SchedulingCard (col 3) | Scrollable time slot list with inline booking form |
-| `BookingForm` | Inside TimeSlotList | Guest name + notes form, creates booking on submit |
-
-Owner pages (event types CRUD, bookings list, blackout management) remain unchanged under `/owner/`.
-
-### Responsive Behavior
-
-- **Desktop (≥768px):** 3 columns side by side (EventInfo | CalendarGrid | TimeSlotList)
-- **Mobile (<768px):** Columns stack vertically, borders become horizontal dividers
-
 ## Environment
 
 | File | Purpose |
 |---|---|
 | `.env.development` | Used by `next dev`. Points `NEXT_PUBLIC_API_URL` to `http://localhost:4010` (mock API) |
 | `.env.local` | Create this to override for the real Django backend (`http://localhost:8000`) |
+
+## UI Overview
+
+The guest-facing UI uses a polished 3-column scheduling card layout:
+
+- **Homepage** (`/`): Grid of event type cards (`EventTypeList`). Clicking a card navigates to `/event-types/[id]`.
+- **Scheduling page** (`/event-types/[id]`): `SchedulingCard` with three columns:
+  - **EventInfo** — host avatar/name, event title, duration, platform, timezone
+  - **CalendarGrid** — custom month calendar with date availability coloring
+  - **TimeSlotList** — scrollable time slots with inline `BookingForm` on selection
+- **Booking confirmation** (`/bookings/confirm`): post-booking summary.
+
+### Component Structure
+
+| Component | File | Purpose |
+|---|---|---|
+| `EventTypeList` | `src/components/EventTypeList.tsx` | Card grid of active event types |
+| `SchedulingCard` | `src/components/SchedulingCard.tsx` | 3-column card shell |
+| `EventInfo` | `src/components/EventInfo.tsx` | Left column: event metadata |
+| `CalendarGrid` | `src/components/CalendarGrid.tsx` | Center column: month calendar |
+| `TimeSlotList` | `src/components/TimeSlotList.tsx` | Right column: slots + booking |
+| `BookingForm` | `src/components/BookingForm.tsx` | Guest name/notes form |
+
+### Design Tokens
+
+| Token | Value | Usage |
+|---|---|---|
+| Background | `#F7F7F8` | Page background |
+| Surface | `#FFFFFF` | Card surface |
+| Border | `#E5E5E5` | Thin separators |
+| Text primary | `#1A1A1A` | Headings, selected states |
+| Text secondary | `#8C8C8C` | Meta, labels, muted text |
+| Accent | `#16A34A` (green.6) | Available dots, active states |
+| Radius (md) | `8px` | Buttons, cards, cells |

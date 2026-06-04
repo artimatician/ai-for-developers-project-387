@@ -1,6 +1,6 @@
 'use client';
 
-import { IconClock, IconVideo, IconGlobe } from '@tabler/icons-react';
+import { IconClock, IconVideo, IconWorld } from '@tabler/icons-react';
 import type { components } from '@/lib/api-types';
 
 type EventType = components['schemas']['EventType'];
@@ -27,7 +27,7 @@ export function EventInfo({ eventType }: EventInfoProps) {
         <span style={styles.rowText}>Google Meet</span>
       </div>
       <div style={styles.row}>
-        <IconGlobe size={16} style={styles.icon} />
+        <IconWorld size={16} style={styles.icon} />
         <span style={styles.rowText}>{eventType.timezone}</span>
       </div>
     </div>
