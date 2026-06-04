@@ -5,10 +5,18 @@ node_modules/
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+dist/
+build/
 .venv/
 venv/
 env/
 *.sqlite3
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # Next.js
 .next/
