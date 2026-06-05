@@ -11,35 +11,35 @@ export function MeetingSummary({ eventType }: MeetingSummaryProps) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
         <div style={{
-          width: 40, height: 40, borderRadius: '50%', backgroundColor: '#27272A',
+          width: 40, height: 40, borderRadius: '50%', backgroundColor: '#F3F4F6',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 16, fontWeight: 600, color: '#FAFAFA',
+          fontSize: 16, fontWeight: 600, color: '#6B7280',
         }}>T</div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#A1A1AA' }}>Tota</div>
-          <div style={{ fontSize: 12, color: '#71717A' }}>Meeting host</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>Tota</div>
+          <div style={{ fontSize: 12, color: '#6B7280' }}>Meeting host</div>
         </div>
       </div>
 
-      <div style={{ height: 1, backgroundColor: '#27272A', marginBottom: 24 }} />
+      <div style={{ height: 1, backgroundColor: '#E5E7EB', marginBottom: 24 }} />
 
-      <div style={{ fontSize: 24, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>
+      <div style={{ fontSize: 24, fontWeight: 600, color: '#111827', marginBottom: 8 }}>
         {eventType.name}
       </div>
-      <p style={{ fontSize: 14, color: '#A1A1AA', margin: 0, lineHeight: 1.5, marginBottom: 24 }}>
+      <p style={{ fontSize: 14, color: '#6B7280', margin: 0, lineHeight: 1.5, marginBottom: 24 }}>
         {eventType.description}
       </p>
 
-      <div style={{ height: 1, backgroundColor: '#27272A', marginBottom: 24 }} />
+      <div style={{ height: 1, backgroundColor: '#E5E7EB', marginBottom: 24 }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <IconClock size={16} color="#71717A" />
-          <span style={{ fontSize: 14, color: '#A1A1AA' }}>30 min</span>
+          <IconClock size={16} color="#9CA3AF" />
+          <span style={{ fontSize: 14, color: '#6B7280' }}>30 min</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <IconWorld size={16} color="#71717A" />
-          <span style={{ fontSize: 14, color: '#A1A1AA' }}>{eventType.timezone}</span>
+          <IconWorld size={16} color="#9CA3AF" />
+          <span style={{ fontSize: 14, color: '#6B7280' }}>{eventType.timezone}</span>
         </div>
       </div>
     </div>
