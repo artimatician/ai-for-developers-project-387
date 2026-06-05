@@ -1,4 +1,4 @@
-import { Container, Skeleton, Table, Group } from '@mantine/core';
+import { Container, Skeleton, Table, Group, TableThead, TableTbody, TableTr, TableTh, TableTd } from '@mantine/core';
 
 export default function Loading() {
   return (
@@ -8,24 +8,24 @@ export default function Loading() {
         <Skeleton height={36} width={130} />
       </Group>
       <Table>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Name</Table.Th>
-            <Table.Th>Timezone</Table.Th>
-            <Table.Th>Active</Table.Th>
-            <Table.Th>Actions</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
+        <TableThead>
+          <TableTr>
+            <TableTh>Name</TableTh>
+            <TableTh>Timezone</TableTh>
+            <TableTh>Active</TableTh>
+            <TableTh>Actions</TableTh>
+          </TableTr>
+        </TableThead>
+        <TableTbody>
           {[1, 2, 3].map((i) => (
-            <Table.Tr key={i}>
-              <Table.Td><Skeleton height={20} /></Table.Td>
-              <Table.Td><Skeleton height={20} width={100} /></Table.Td>
-              <Table.Td><Skeleton height={20} width={50} /></Table.Td>
-              <Table.Td><Skeleton height={20} width={80} /></Table.Td>
-            </Table.Tr>
+            <TableTr key={i}>
+              <TableTd><Skeleton height={20} /></TableTd>
+              <TableTd><Skeleton height={20} width={100} /></TableTd>
+              <TableTd><Skeleton height={20} width={50} /></TableTd>
+              <TableTd><Skeleton height={20} width={80} /></TableTd>
+            </TableTr>
           ))}
-        </Table.Tbody>
+        </TableTbody>
       </Table>
     </Container>
   );
