@@ -54,17 +54,17 @@ export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPage
   };
 
   return (
-    <div style={{ backgroundColor: '#0A0A0B', minHeight: '100vh' }}>
-      <Navbar variant="dark" />
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
+      <Navbar variant="inner" />
       <div style={{ maxWidth: 1080, margin: '0 auto', padding: '48px 24px' }}>
         <div className="scheduling-panel" style={{
-          backgroundColor: '#18181B', borderRadius: 16,
+          backgroundColor: '#FFFFFF', borderRadius: 16, border: '1px solid #E5E7EB',
           display: 'flex', overflow: 'hidden',
         }}>
-        <div style={{ flex: '0 0 280px', padding: 32, borderRight: '1px solid #27272A' }}>
+        <div style={{ flex: '0 0 280px', padding: 32, borderRight: '1px solid #E5E7EB' }}>
           <MeetingSummary eventType={eventType} />
         </div>
-        <div style={{ flex: '0 0 auto', minWidth: 320, padding: 32, borderRight: '1px solid #27272A' }}>
+        <div style={{ flex: '0 0 auto', minWidth: 320, padding: 32, borderRight: '1px solid #E5E7EB' }}>
           <CalendarGrid
             timezone={eventType.timezone}
             slots={slots}

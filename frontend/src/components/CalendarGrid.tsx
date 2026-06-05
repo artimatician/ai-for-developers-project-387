@@ -151,16 +151,16 @@ function computeAvailableDates(slots: TimeSlot[], tz: string): Set<string> {
 const calendarGridStyles = `
 .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .cal-nav-btn {
-  background: #27272A; border: 1px solid #3F3F46; border-radius: 6px;
-  width: 28px; height: 28px; cursor: pointer; color: #A1A1AA;
+  background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px;
+  width: 28px; height: 28px; cursor: pointer; color: #6B7280;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s; padding: 0;
 }
-.cal-nav-btn:hover { background: #3F3F46; }
-.cal-month-label { font-size: 16px; font-weight: 600; color: #FAFAFA; }
+.cal-nav-btn:hover { background: #E5E7EB; }
+.cal-month-label { font-size: 16px; font-weight: 600; color: #111827; }
 .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
 .cal-weekday {
-  text-align: center; font-size: 11px; color: #71717A; font-weight: 500;
+  text-align: center; font-size: 11px; color: #9CA3AF; font-weight: 500;
   height: 28px; display: flex; align-items: center; justify-content: center;
 }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
@@ -169,16 +169,16 @@ const calendarGridStyles = `
   font-size: 13px; border-radius: 8px; cursor: default; transition: background 0.15s;
   flex-direction: column; gap: 0;
 }
-.cal-outside { color: #3F3F46; }
-.cal-past { color: #52525B; }
-.cal-outside-window { color: #52525B; }
-.cal-available { color: #FAFAFA; cursor: pointer; background: #27272A; }
-.cal-available:hover { background: #3F3F46; }
-.cal-unavailable { color: #52525B; }
-.cal-unavailable-in-window { color: #52525B; background: transparent; }
-.cal-selected { background: #FAFAFA !important; color: #0A0A0B !important; font-weight: 600; }
+.cal-outside { color: #D1D5DB; }
+.cal-past { color: #D1D5DB; }
+.cal-outside-window { color: #D1D5DB; }
+.cal-available { color: #111827; cursor: pointer; background: #FFFFFF; border: 1px solid #E5E7EB; }
+.cal-available:hover { background: #F3F4F6; }
+.cal-unavailable { color: #D1D5DB; }
+.cal-unavailable-in-window { color: #D1D5DB; background: transparent; }
+.cal-selected { background: #F97316 !important; color: #FFFFFF !important; font-weight: 600; }
 .cal-today-dot {
-  width: 4px; height: 4px; border-radius: 50%; background: #FAFAFA;
+  width: 4px; height: 4px; border-radius: 50%; background: #F97316;
   margin-top: 1px;
 }
 `;

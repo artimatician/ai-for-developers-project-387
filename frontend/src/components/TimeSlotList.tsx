@@ -53,7 +53,7 @@ export function TimeSlotList({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>
           {dayLabel || 'Select a date'}
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
@@ -61,9 +61,9 @@ export function TimeSlotList({
             onClick={() => onTimeFormatChange('12h')}
             style={{
               fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 999,
-              backgroundColor: timeFormat === '12h' ? '#FAFAFA' : 'transparent',
-              color: timeFormat === '12h' ? '#0A0A0B' : '#71717A',
-              border: `1px solid ${timeFormat === '12h' ? '#FAFAFA' : '#3F3F46'}`,
+              backgroundColor: timeFormat === '12h' ? '#111827' : 'transparent',
+              color: timeFormat === '12h' ? '#FFFFFF' : '#9CA3AF',
+              border: `1px solid ${timeFormat === '12h' ? '#111827' : '#E5E7EB'}`,
               cursor: 'pointer', lineHeight: '18px',
             }}
           >12h</button>
@@ -71,9 +71,9 @@ export function TimeSlotList({
             onClick={() => onTimeFormatChange('24h')}
             style={{
               fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 999,
-              backgroundColor: timeFormat === '24h' ? '#FAFAFA' : 'transparent',
-              color: timeFormat === '24h' ? '#0A0A0B' : '#71717A',
-              border: `1px solid ${timeFormat === '24h' ? '#FAFAFA' : '#3F3F46'}`,
+              backgroundColor: timeFormat === '24h' ? '#111827' : 'transparent',
+              color: timeFormat === '24h' ? '#FFFFFF' : '#9CA3AF',
+              border: `1px solid ${timeFormat === '24h' ? '#111827' : '#E5E7EB'}`,
               cursor: 'pointer', lineHeight: '18px',
             }}
           >24h</button>
@@ -82,7 +82,7 @@ export function TimeSlotList({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto', flex: 1, maxHeight: 424 }}>
         {daySlots.length === 0 && selectedDate && (
-          <div style={{ color: '#71717A', fontSize: 14, textAlign: 'center', padding: 24 }}>
+          <div style={{ color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 24 }}>
             No time slots available for this date.
           </div>
         )}
@@ -96,11 +96,11 @@ export function TimeSlotList({
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 padding: '10px 14px', borderRadius: 10,
-                border: `1px solid ${isSelected ? '#FAFAFA' : '#3F3F46'}`,
-                backgroundColor: isSelected ? '#27272A' : 'transparent',
+                border: `1px solid ${isSelected ? '#111827' : '#E5E7EB'}`,
+                backgroundColor: isSelected ? '#F3F4F6' : 'transparent',
                 cursor: slot.available ? 'pointer' : 'not-allowed',
                 opacity: slot.available ? 1 : 0.35,
-                color: isSelected ? '#FAFAFA' : '#FAFAFA',
+                color: '#111827',
                 fontWeight: isSelected ? 500 : 400,
                 fontSize: 14,
                 transition: 'border-color 0.15s, background-color 0.15s',
@@ -112,15 +112,15 @@ export function TimeSlotList({
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
         <button onClick={onBack} style={{
-          padding: '8px 16px', borderRadius: 8, border: '1px solid #3F3F46',
-          backgroundColor: 'transparent', color: '#FAFAFA', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+          padding: '8px 16px', borderRadius: 8, border: '1px solid #E5E7EB',
+          backgroundColor: 'transparent', color: '#6B7280', fontSize: 14, fontWeight: 500, cursor: 'pointer',
         }}>Back</button>
         <button
           onClick={onContinue}
           disabled={!selectedSlot}
           style={{
             padding: '8px 16px', borderRadius: 8, border: 'none',
-            backgroundColor: '#FAFAFA', color: '#0A0A0B', fontSize: 14, fontWeight: 500,
+            backgroundColor: '#111827', color: '#FFFFFF', fontSize: 14, fontWeight: 500,
             cursor: selectedSlot ? 'pointer' : 'not-allowed',
             opacity: selectedSlot ? 1 : 0.4,
           }}
