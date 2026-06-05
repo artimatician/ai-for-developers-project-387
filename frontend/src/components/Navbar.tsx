@@ -5,10 +5,37 @@ import { IconCalendar } from '@tabler/icons-react';
 import Link from 'next/link';
 
 interface NavbarProps {
-  variant: 'landing' | 'inner';
+  variant: 'landing' | 'inner' | 'dark';
 }
 
 export function Navbar({ variant }: NavbarProps) {
+  if (variant === 'dark') {
+    return (
+      <Box style={{ borderBottom: '1px solid #27272A', backgroundColor: '#18181B' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <Group gap={8} style={{ cursor: 'pointer' }}>
+              <IconCalendar size={18} color="#FAFAFA" />
+              <Text size="sm" fw={600} c="#FAFAFA">Calendar</Text>
+            </Group>
+          </Link>
+          <Group gap={16}>
+            <Link href="/book" style={{ textDecoration: 'none' }}>
+              <Text size="sm" fw={500} c="#A1A1AA">
+                Book
+              </Text>
+            </Link>
+            <Link href="/owner/event-types" style={{ textDecoration: 'none' }}>
+              <Text size="sm" fw={500} c="#A1A1AA">
+                Owner
+              </Text>
+            </Link>
+          </Group>
+        </div>
+      </Box>
+    );
+  }
+
   if (variant === 'landing') {
     return (
       <Box style={{ borderBottom: '1px solid #E5E7EB' }}>

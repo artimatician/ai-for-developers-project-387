@@ -3,7 +3,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { Group, Button } from '@mantine/core';
 import type { components } from '@/lib/api-types';
 
 dayjs.extend(utc);
@@ -21,6 +20,8 @@ interface TimeSlotListProps {
   onSlotSelect: (startTime: string) => void;
   onBack: () => void;
   onContinue: () => void;
+  timeFormat: '12h' | '24h';
+  onTimeFormatChange: (fmt: '12h' | '24h') => void;
 }
 
 export function TimeSlotList({
@@ -33,6 +34,8 @@ export function TimeSlotList({
   onSlotSelect,
   onBack,
   onContinue,
+  timeFormat,
+  onTimeFormatChange,
 }: TimeSlotListProps) {
   const daySlots = selectedDate
     ? slots.filter((s) => {
@@ -45,95 +48,84 @@ export function TimeSlotList({
     ? dayjs.tz(selectedDate, timezone).format('dddd, MMMM D')
     : null;
 
+  const fmt = timeFormat === '12h' ? 'h:mm A' : 'HH:mm';
+
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        {dayLabel ? `Available times — ${dayLabel}` : 'Select a date'}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>
+          {dayLabel || 'Select a date'}
+        </div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button
+            onClick={() => onTimeFormatChange('12h')}
+            style={{
+              fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 999,
+              backgroundColor: timeFormat === '12h' ? '#FAFAFA' : 'transparent',
+              color: timeFormat === '12h' ? '#0A0A0B' : '#71717A',
+              border: `1px solid ${timeFormat === '12h' ? '#FAFAFA' : '#3F3F46'}`,
+              cursor: 'pointer', lineHeight: '18px',
+            }}
+          >12h</button>
+          <button
+            onClick={() => onTimeFormatChange('24h')}
+            style={{
+              fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 999,
+              backgroundColor: timeFormat === '24h' ? '#FAFAFA' : 'transparent',
+              color: timeFormat === '24h' ? '#0A0A0B' : '#71717A',
+              border: `1px solid ${timeFormat === '24h' ? '#FAFAFA' : '#3F3F46'}`,
+              cursor: 'pointer', lineHeight: '18px',
+            }}
+          >24h</button>
+        </div>
       </div>
-      <div style={styles.slotList}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto', flex: 1, maxHeight: 424 }}>
         {daySlots.length === 0 && selectedDate && (
-          <div style={styles.empty}>No time slots available for this date.</div>
+          <div style={{ color: '#71717A', fontSize: 14, textAlign: 'center', padding: 24 }}>
+            No time slots available for this date.
+          </div>
         )}
         {daySlots.map((slot) => {
-          const timeLabel = `${dayjs(slot.startTime).tz(timezone).format('h:mm A')} – ${dayjs(slot.endTime).tz(timezone).format('h:mm A')}`;
           const isSelected = selectedSlot === slot.startTime;
+          const label = dayjs(slot.startTime).tz(timezone).format(fmt);
           return (
             <div
               key={slot.startTime}
-              onClick={() => {
-                if (slot.available) onSlotSelect(slot.startTime);
-              }}
+              onClick={() => slot.available && onSlotSelect(slot.startTime)}
               style={{
-                ...styles.slotItem,
-                backgroundColor: isSelected ? '#FFF7ED' : '#FFFFFF',
-                borderColor: isSelected ? '#FDBA74' : '#E5E7EB',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '10px 14px', borderRadius: 10,
+                border: `1px solid ${isSelected ? '#FAFAFA' : '#3F3F46'}`,
+                backgroundColor: isSelected ? '#27272A' : 'transparent',
                 cursor: slot.available ? 'pointer' : 'not-allowed',
-                opacity: slot.available ? 1 : 0.5,
+                opacity: slot.available ? 1 : 0.35,
+                color: isSelected ? '#FAFAFA' : '#FAFAFA',
+                fontWeight: isSelected ? 500 : 400,
+                fontSize: 14,
+                transition: 'border-color 0.15s, background-color 0.15s',
               }}
-            >
-              <span style={{ fontSize: 14, color: isSelected ? '#C2410C' : '#111827' }}>
-                {timeLabel}
-              </span>
-              <span style={{ fontSize: 12, color: slot.available ? '#16A34A' : '#9CA3AF' }}>
-                {slot.available ? 'Free' : 'Busy'}
-              </span>
-            </div>
+            >{label}</div>
           );
         })}
       </div>
-      <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-        <Group justify="space-between">
-          <Button variant="outline" onClick={onBack} style={{ borderRadius: 8, borderColor: '#E5E7EB', color: '#111827' }}>
-            Back
-          </Button>
-          <Button
-            onClick={onContinue}
-            disabled={!selectedSlot}
-            style={{
-              backgroundColor: '#F97316', color: '#FFFFFF', borderRadius: 8,
-              opacity: selectedSlot ? 1 : 0.5,
-            }}
-          >
-            Continue
-          </Button>
-        </Group>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+        <button onClick={onBack} style={{
+          padding: '8px 16px', borderRadius: 8, border: '1px solid #3F3F46',
+          backgroundColor: 'transparent', color: '#FAFAFA', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+        }}>Back</button>
+        <button
+          onClick={onContinue}
+          disabled={!selectedSlot}
+          style={{
+            padding: '8px 16px', borderRadius: 8, border: 'none',
+            backgroundColor: '#FAFAFA', color: '#0A0A0B', fontSize: 14, fontWeight: 500,
+            cursor: selectedSlot ? 'pointer' : 'not-allowed',
+            opacity: selectedSlot ? 1 : 0.4,
+          }}
+        >Continue</button>
       </div>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  },
-  header: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: '#111827',
-    marginBottom: 16,
-  },
-  slotList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    overflowY: 'auto',
-    flex: 1,
-  },
-  slotItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 14px',
-    border: '1px solid #E5E7EB',
-    borderRadius: 8,
-    transition: 'background 0.15s, border-color 0.15s',
-  },
-  empty: {
-    color: '#9CA3AF',
-    fontSize: 14,
-    textAlign: 'center',
-    padding: 24,
-  },
-};

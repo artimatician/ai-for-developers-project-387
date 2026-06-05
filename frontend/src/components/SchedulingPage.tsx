@@ -27,6 +27,7 @@ export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPage
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(initialDate || null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [timeFormat, setTimeFormat] = useState<'12h' | '24h'>('12h');
 
   useEffect(() => {
     if (slots.length > 0 && !selectedDate) {
@@ -53,57 +54,47 @@ export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPage
   };
 
   return (
-    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
-      <Navbar variant="inner" />
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
-        <div className="scheduling-layout" style={{ display: 'flex', gap: 20, alignItems: 'stretch' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <MeetingSummary
-              eventType={eventType}
-              selectedDate={selectedDate}
-              selectedSlot={selectedSlot}
-              timezone={eventType.timezone}
-            />
-          </div>
-          <div style={{ flex: '0 0 320px' }}>
-            <div style={{
-              backgroundColor: '#FFFFFF', borderRadius: 14, border: '1px solid #E5E7EB',
-              boxShadow: '0 1px 2px rgba(16,24,40,0.04)', padding: 24,
-            }}>
-              <CalendarGrid
-                timezone={eventType.timezone}
-                slots={slots}
-                selectedDate={selectedDate}
-                onDateSelect={handleDateSelect}
-              />
-            </div>
-          </div>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            <div style={{
-              backgroundColor: '#FFFFFF', borderRadius: 14, border: '1px solid #E5E7EB',
-              boxShadow: '0 1px 2px rgba(16,24,40,0.04)', padding: 24,
-              display: 'flex', flexDirection: 'column', height: '100%',
-            }}>
-              <TimeSlotList
-                eventTypeId={eventType.id}
-                eventTypeName={eventType.name}
-                timezone={eventType.timezone}
-                selectedDate={selectedDate}
-                slots={slots}
-                selectedSlot={selectedSlot}
-                onSlotSelect={handleSlotSelect}
-                onBack={() => window.history.back()}
-                onContinue={handleContinue}
-              />
-            </div>
-          </div>
+    <div style={{ backgroundColor: '#0A0A0B', minHeight: '100vh' }}>
+      <Navbar variant="dark" />
+      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '48px 24px' }}>
+        <div className="scheduling-panel" style={{
+          backgroundColor: '#18181B', borderRadius: 16,
+          display: 'flex', overflow: 'hidden',
+        }}>
+        <div style={{ flex: '0 0 280px', padding: 32, borderRight: '1px solid #27272A' }}>
+          <MeetingSummary eventType={eventType} />
         </div>
-        <style>{`
-          @media (max-width: 900px) {
-            .scheduling-layout { flex-direction: column !important; }
-          }
-        `}</style>
+        <div style={{ flex: '0 0 auto', minWidth: 320, padding: 32, borderRight: '1px solid #27272A' }}>
+          <CalendarGrid
+            timezone={eventType.timezone}
+            slots={slots}
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+          />
+        </div>
+        <div style={{ flex: 1, minWidth: 240, padding: 32, display: 'flex', flexDirection: 'column' }}>
+          <TimeSlotList
+            eventTypeId={eventType.id}
+            eventTypeName={eventType.name}
+            timezone={eventType.timezone}
+            selectedDate={selectedDate}
+            slots={slots}
+            selectedSlot={selectedSlot}
+            onSlotSelect={handleSlotSelect}
+            onBack={() => window.history.back()}
+            onContinue={handleContinue}
+            timeFormat={timeFormat}
+            onTimeFormatChange={setTimeFormat}
+          />
+        </div>
       </div>
+      </div>
+      <style>{`
+        @media (max-width: 900px) {
+          .scheduling-panel { flex-direction: column !important; }
+          .scheduling-panel > div { border-right: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

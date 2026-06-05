@@ -4,6 +4,7 @@ import { useMemo, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import type { components } from '@/lib/api-types';
 
 dayjs.extend(utc);
@@ -43,6 +44,7 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
       setCurrentMonth((m) => m + 1);
     }
   }, [currentMonth]);
+
   const availableDates = useMemo(() => computeAvailableDates(slots, timezone), [slots, timezone]);
 
   const firstOfMonth = dayjs.tz(`${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`, timezone);
@@ -79,7 +81,7 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
     if (isPast(dateKey)) return 'cal-past';
     if (!isInWindow(dateKey)) return 'cal-outside-window';
     if (availableDates.has(dateKey)) return 'cal-available';
-    return 'cal-unavailable';
+    return 'cal-unavailable-in-window';
   }
 
   function canSelect(dateKey: string | null): boolean {
@@ -93,11 +95,13 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
     <div>
       <style>{calendarGridStyles}</style>
       <div className="cal-header">
-        <button className="cal-nav-btn" onClick={handlePrevMonth}>&lt;</button>
         <span className="cal-month-label">
           {firstOfMonth.format('MMMM YYYY')}
         </span>
-        <button className="cal-nav-btn" onClick={handleNextMonth}>&gt;</button>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button className="cal-nav-btn" onClick={handlePrevMonth}><IconChevronLeft size={14} /></button>
+          <button className="cal-nav-btn" onClick={handleNextMonth}><IconChevronRight size={14} /></button>
+        </div>
       </div>
       <div className="cal-weekdays">
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
@@ -109,6 +113,7 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
           const cls = getCellClass(cell.dateKey);
           const selectable = canSelect(cell.dateKey);
           const isSelected = cell.dateKey === selectedDate;
+          const isToday = cell.dateKey === todayStr;
           return (
             <div
               key={i}
@@ -123,6 +128,7 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
               }}
             >
               {cell.day}
+              {isToday && !isSelected && <span className="cal-today-dot" />}
             </div>
           );
         })}
@@ -133,44 +139,46 @@ export function CalendarGrid({ timezone, slots, selectedDate, onDateSelect }: Ca
 
 function computeAvailableDates(slots: TimeSlot[], tz: string): Set<string> {
   const available = new Set<string>();
-  const hasOnlyUnavailable = new Set<string>();
   for (const slot of slots) {
     const key = dayjs(slot.startTime).tz(tz).format('YYYY-MM-DD');
     if (slot.available) {
       available.add(key);
-    } else {
-      hasOnlyUnavailable.add(key);
     }
   }
   return available;
 }
 
-  const calendarGridStyles = `
+const calendarGridStyles = `
 .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .cal-nav-btn {
-  background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px;
-  width: 28px; height: 28px; cursor: pointer; font-size: 13px;
-  color: #111827; display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
+  background: #27272A; border: 1px solid #3F3F46; border-radius: 6px;
+  width: 28px; height: 28px; cursor: pointer; color: #A1A1AA;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; padding: 0;
 }
-.cal-nav-btn:hover { background: #F9FAFB; }
-.cal-month-label { font-size: 14px; font-weight: 600; color: #111827; }
+.cal-nav-btn:hover { background: #3F3F46; }
+.cal-month-label { font-size: 16px; font-weight: 600; color: #FAFAFA; }
 .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
 .cal-weekday {
-  text-align: center; font-size: 11px; color: #6B7280; font-weight: 500;
+  text-align: center; font-size: 11px; color: #71717A; font-weight: 500;
   height: 28px; display: flex; align-items: center; justify-content: center;
 }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .cal-cell {
   width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
   font-size: 13px; border-radius: 8px; cursor: default; transition: background 0.15s;
-  border: 1px solid transparent;
+  flex-direction: column; gap: 0;
 }
-.cal-outside { color: #D1D5DB; }
-.cal-past { color: #9CA3AF; }
-.cal-outside-window { color: #9CA3AF; }
-.cal-available { color: #111827; cursor: pointer; }
-.cal-available:hover { background: #F3F4F6; }
-.cal-unavailable { color: #9CA3AF; }
-.cal-selected { background: #FFF7ED !important; border-color: #FDBA74 !important; color: #C2410C !important; font-weight: 600; }
+.cal-outside { color: #3F3F46; }
+.cal-past { color: #52525B; }
+.cal-outside-window { color: #52525B; }
+.cal-available { color: #FAFAFA; cursor: pointer; background: #27272A; }
+.cal-available:hover { background: #3F3F46; }
+.cal-unavailable { color: #52525B; }
+.cal-unavailable-in-window { color: #52525B; background: transparent; }
+.cal-selected { background: #FAFAFA !important; color: #0A0A0B !important; font-weight: 600; }
+.cal-today-dot {
+  width: 4px; height: 4px; border-radius: 50%; background: #FAFAFA;
+  margin-top: 1px;
+}
 `;
