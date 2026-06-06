@@ -1,0 +1,4 @@
+playwright>=1.52
+pytest>=8
+pytest-playwright>=0.7
+requests>=2.32
