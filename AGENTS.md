@@ -12,6 +12,10 @@ cd frontend && npm run dev                            # start Next.js dev server
 cd frontend && npm run build                          # production build
 cd frontend && npm run build:spec                     # compile TypeSpec → OpenAPI YAML
 cd frontend && npm run gen:types                      # regenerate TypeScript types from OpenAPI spec
+./tests/run-tests.sh                                  # start backend + frontend, run E2E tests, clean up
+python3 -m pytest tests/ -v --tb=short                # run all E2E tests (requires backend on :4010)
+python3 -m pytest tests/ -v -m "not browser"          # API-only tests (40 total)
+python3 -m pytest tests/ -v -m browser                # browser tests only (3 total)
 ```
 
 ## Structure
@@ -19,6 +23,7 @@ cd frontend && npm run gen:types                      # regenerate TypeScript ty
 - `spec/*.tsp` — TypeSpec API spec (entrypoint `main.tsp`, models, owner/guest ops)
 - `backend/` — Django + DRF REST API (port 4010)
 - `frontend/` — Next.js 16 + Mantine 7 app (port 3000)
+- `tests/` — Python E2E test suite (40 API + 3 browser tests)
 - `PLAN.md` — full design doc (data models, endpoints, business rules, slot algorithm)
 - `BACKEND_PLAN.md` — backend implementation plan
 
@@ -57,6 +62,20 @@ cd frontend && npm run gen:types                      # regenerate TypeScript ty
 - **Auto-migration**: Tables created on startup via `AppConfig.ready()`
 - **No migrations directory**: Uses `--run-syncdb` instead of Django migrations
 - **54 tests** across 5 test suites: health, event types, bookings, blackouts, slots
+
+## Test conventions
+
+- **Stack**: Python + pytest + requests + Playwright
+- **40 API tests** (no browser needed) + **3 browser tests** (auto-skipped if Playwright browser missing)
+- **Fixtures** in `tests/conftest.py`: `api_client` (requests.Session, proxy disabled), `event_type`, `second_event_type`, `unique_time` (callable factory), `future_slot`
+- **`unique_time`** generates conflict-free ISO 8601 UTC times starting at 14:00 (day+2), 30min increments across multiple days — avoids blackout window 09:00–13:00
+- **`future_slot`** books a real slot to guarantee it's available for downstream assertions
+- **No `data-testid`** — browser locators use text/role/CSS selectors against Mantine components
+- **Proxy bypass**: all API calls go through `requests.Session` with `trust_env = False`
+- **Global conflict model**: bookings and blackouts block slots across all event types
+- **Database persists** across test runs within the same backend process (SQLite `:memory:`)
+- **Browser auto-skip**: `pytest_collection_modifyitems` checks for installed Playwright Chromium and skips `page` fixture tests
+- **Two timezones** tested: `UTC` and `America/New_York`
 
 ## Spec conventions
 
