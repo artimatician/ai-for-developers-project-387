@@ -80,14 +80,14 @@ def test_booking_snapshot_semantics(api_client, event_type, unique_time):
 
 def test_slot_count_and_format(api_client, event_type):
     slots = api_client.get(f"/api/event-types/{event_type['id']}/slots").json()
-    assert len(slots) == 252
+    assert len(slots) == 490
 
     days = {}
     for slot in slots:
         day = slot["startTime"][:10]
         days[day] = days.get(day, 0) + 1
     for day, count in days.items():
-        assert count == 18, f"Day {day} has {count} slots, expected 18"
+        assert count == 35, f"Day {day} has {count} slots, expected 35"
 
     for slot in slots:
         assert slot["startTime"].endswith("Z")

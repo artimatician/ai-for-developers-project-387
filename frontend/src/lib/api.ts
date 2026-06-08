@@ -62,8 +62,8 @@ export async function getActiveEventType(id: string): Promise<EventType> {
   return request<EventType>('GET', `/api/event-types/${id}`);
 }
 
-export async function getSlots(id: string): Promise<TimeSlot[]> {
-  return request<TimeSlot[]>('GET', `/api/event-types/${id}/slots`);
+export async function getSlots(id: string, duration?: number): Promise<TimeSlot[]> {
+  return request<TimeSlot[]>('GET', `/api/event-types/${id}/slots`, undefined, { duration });
 }
 
 export async function createBooking(

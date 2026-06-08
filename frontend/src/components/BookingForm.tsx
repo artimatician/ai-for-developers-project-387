@@ -11,9 +11,10 @@ interface BookingFormProps {
   eventTypeId: string;
   eventTypeName: string;
   startTime: string;
+  duration?: number;
 }
 
-export function BookingForm({ eventTypeId, eventTypeName, startTime }: BookingFormProps) {
+export function BookingForm({ eventTypeId, eventTypeName, startTime, duration }: BookingFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -38,11 +39,13 @@ export function BookingForm({ eventTypeId, eventTypeName, startTime }: BookingFo
         startTime,
         guestName: values.guestName,
         notes: values.notes || undefined,
+        ...(duration ? { duration } : {}),
       });
       const params = new URLSearchParams({
         startTime: result.startTime,
         endTime: result.endTime,
         eventTypeName: result.eventTypeName,
+        duration: String(result.duration),
       });
       router.push(`/bookings/confirm?${params.toString()}`);
     } catch (e) {

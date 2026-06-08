@@ -4,7 +4,7 @@ import zoneinfo
 
 from appointments.models import EventType, Booking, Blackout
 
-SLOT_DURATION = timedelta(minutes=30)
+SLOT_INTERVAL = timedelta(minutes=15)
 
 
 def is_valid_timezone(tz_string: str) -> bool:
@@ -23,7 +23,9 @@ def parse_datetime(dt_string: str) -> datetime:
     return dt.astimezone(timezone.utc)
 
 
-def generate_slots(event_type):
+def generate_slots(event_type, duration=None):
+    if duration is None:
+        duration = event_type.duration
     tz = zoneinfo.ZoneInfo(event_type.timezone)
     now = datetime.now(timezone.utc)
 
@@ -41,8 +43,8 @@ def generate_slots(event_type):
         window_end_utc = datetime(day.year, day.month, day.day, 18, 0, tzinfo=tz).astimezone(timezone.utc)
 
         slot_start = window_start_utc
-        while slot_start + SLOT_DURATION <= window_end_utc:
-            slot_end = slot_start + SLOT_DURATION
+        while slot_start + timedelta(minutes=duration) <= window_end_utc:
+            slot_end = slot_start + timedelta(minutes=duration)
 
             available = True
 
@@ -66,12 +68,12 @@ def generate_slots(event_type):
                 'available': available,
             })
 
-            slot_start = slot_end
+            slot_start += SLOT_INTERVAL
 
     return slots
 
 
-def validate_booking(event_type_id, start_time):
+def validate_booking(event_type_id, start_time, duration=None):
     try:
         event_type = EventType.objects.get(id=event_type_id)
     except EventType.DoesNotExist:
@@ -80,20 +82,36 @@ def validate_booking(event_type_id, start_time):
     if not event_type.isActive:
         return None, {'code': 'EVENT_TYPE_INACTIVE', 'message': 'Event type is not active'}, 404
 
+    if duration is None:
+        duration = event_type.duration
+
+    if duration < 15:
+        return None, {'code': 'INVALID_INPUT', 'message': 'Duration must be at least 15 minutes'}, 400
+    if duration > 480:
+        return None, {'code': 'INVALID_INPUT', 'message': 'Duration must not exceed 480 minutes'}, 400
+    if duration % 15 != 0:
+        return None, {'code': 'INVALID_INPUT', 'message': 'Duration must be a multiple of 15 minutes'}, 400
+    if duration > event_type.duration:
+        return None, {'code': 'INVALID_INPUT', 'message': f'Duration must not exceed event type maximum of {event_type.duration} minutes'}, 400
+
     tz = zoneinfo.ZoneInfo(event_type.timezone)
     local_start = start_time.astimezone(tz)
 
-    if local_start.minute % 30 != 0 or local_start.second != 0 or local_start.microsecond != 0:
-        return None, {'code': 'INVALID_INPUT', 'message': 'Start time must align with a 30-minute slot boundary'}, 400
+    if local_start.minute % 15 != 0 or local_start.second != 0 or local_start.microsecond != 0:
+        return None, {'code': 'INVALID_INPUT', 'message': 'Start time must align with a 15-minute slot boundary'}, 400
 
     if local_start.hour < 9 or local_start.hour >= 18:
         return None, {'code': 'INVALID_INPUT', 'message': 'Start time must be within operating hours (09:00-18:00)'}, 400
+
+    end_time = start_time + timedelta(minutes=duration)
+    local_end = end_time.astimezone(tz)
+    if local_end.hour > 18 or (local_end.hour == 18 and local_end.minute > 0):
+        return None, {'code': 'INVALID_INPUT', 'message': 'End time must be within operating hours (09:00-18:00)'}, 400
 
     now = datetime.now(timezone.utc)
     if start_time < now:
         return None, {'code': 'INVALID_INPUT', 'message': 'Cannot book a slot in the past'}, 400
 
-    end_time = start_time + timedelta(minutes=30)
     conflicting_booking = Booking.objects.filter(
         startTime__lt=end_time,
         endTime__gt=start_time,

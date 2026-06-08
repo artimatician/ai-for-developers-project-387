@@ -3,10 +3,13 @@
 import { IconClock, IconWorld } from '@tabler/icons-react';
 
 interface MeetingSummaryProps {
-  eventType: { name: string; description: string; timezone: string };
+  eventType: { name: string; description: string; timezone: string; duration?: number };
+  duration?: number;
 }
 
-export function MeetingSummary({ eventType }: MeetingSummaryProps) {
+export function MeetingSummary({ eventType, duration }: MeetingSummaryProps) {
+  const displayDuration = duration ?? eventType.duration ?? 30;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
@@ -35,7 +38,7 @@ export function MeetingSummary({ eventType }: MeetingSummaryProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <IconClock size={16} color="#9CA3AF" />
-          <span style={{ fontSize: 14, color: '#6B7280' }}>30 min</span>
+          <span style={{ fontSize: 14, color: '#6B7280' }}>{displayDuration} min</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <IconWorld size={16} color="#9CA3AF" />
