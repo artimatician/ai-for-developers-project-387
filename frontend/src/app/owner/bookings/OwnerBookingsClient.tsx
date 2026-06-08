@@ -83,34 +83,38 @@ export function OwnerBookingsClient({
       </Group>
 
       {bookings.length === 0 ? (
-        <Text c="dimmed">No bookings found.</Text>
+        <div style={{ padding: '40px 24px', textAlign: 'center', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E7EB' }}>
+          <Text size="sm" c="#6B7280">No bookings found. Bookings will appear here once guests start scheduling.</Text>
+        </div>
       ) : (
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Event Type</Table.Th>
-              <Table.Th>Guest</Table.Th>
-              <Table.Th>Start</Table.Th>
-              <Table.Th>End</Table.Th>
-              <Table.Th>Notes</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {bookings.map((b) => (
-              <Table.Tr key={b.id}>
-                <Table.Td>{b.eventTypeName}</Table.Td>
-                <Table.Td>{b.guestName}</Table.Td>
-                <Table.Td>
-                  {dayjs(b.startTime).format('MMM D, YYYY h:mm A')}
-                </Table.Td>
-                <Table.Td>
-                  {dayjs(b.endTime).format('MMM D, YYYY h:mm A')}
-                </Table.Td>
-                <Table.Td>{b.notes || '—'}</Table.Td>
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Event Type</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Guest</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Start</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>End</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Notes</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {bookings.map((b) => (
+                <Table.Tr key={b.id}>
+                  <Table.Td style={{ color: '#111827', fontWeight: 500 }}>{b.eventTypeName}</Table.Td>
+                  <Table.Td style={{ color: '#111827' }}>{b.guestName}</Table.Td>
+                  <Table.Td style={{ color: '#6B7280' }}>
+                    {dayjs(b.startTime).format('MMM D, YYYY h:mm A')}
+                  </Table.Td>
+                  <Table.Td style={{ color: '#6B7280' }}>
+                    {dayjs(b.endTime).format('MMM D, YYYY h:mm A')}
+                  </Table.Td>
+                  <Table.Td style={{ color: '#6B7280' }}>{b.notes || '—'}</Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </div>
       )}
 
       <Pagination

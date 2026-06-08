@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Title } from '@mantine/core';
+import { Title } from '@mantine/core';
 import { listBlackouts } from '@/lib/api';
 import { OwnerBlackoutsClient } from './OwnerBlackoutsClient';
 import type { components } from '@/lib/api-types';
@@ -27,13 +27,13 @@ export default function OwnerBlackoutsPage() {
     fetchData();
   }, []);
 
-  if (loading) return <Container><p>Loading...</p></Container>;
-  if (error) return <Container><ErrorAlert message={error} onRetry={fetchData} /></Container>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <ErrorAlert message={error} onRetry={fetchData} />;
 
   return (
-    <Container>
+    <>
       <Title order={2} mb="lg">Blackouts</Title>
       <OwnerBlackoutsClient blackouts={blackouts} />
-    </Container>
+    </>
   );
 }

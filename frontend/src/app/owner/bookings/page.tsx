@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Title } from '@mantine/core';
+import { Title } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { listBookings, listEventTypes } from '@/lib/api';
@@ -48,11 +48,11 @@ function BookingsContent() {
     fetchData();
   }, [searchParams.toString()]);
 
-  if (loading) return <Container><p>Loading...</p></Container>;
-  if (error) return <Container><ErrorAlert message={error} onRetry={fetchData} /></Container>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <ErrorAlert message={error} onRetry={fetchData} />;
 
   return (
-    <Container>
+    <>
       <Title order={2} mb="lg">Bookings</Title>
       <OwnerBookingsClient
         bookings={bookings}
@@ -64,13 +64,13 @@ function BookingsContent() {
           to: searchParams.get('to') || undefined,
         }}
       />
-    </Container>
+    </>
   );
 }
 
 export default function OwnerBookingsPage() {
   return (
-    <Suspense fallback={<Container><p>Loading...</p></Container>}>
+    <Suspense fallback={<p>Loading...</p>}>
       <BookingsContent />
     </Suspense>
   );

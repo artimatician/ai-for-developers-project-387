@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Title } from '@mantine/core';
+import { Title } from '@mantine/core';
 import { listEventTypes } from '@/lib/api';
 import { OwnerEventTypesClient } from './OwnerEventTypesClient';
 import type { components } from '@/lib/api-types';
@@ -27,13 +27,13 @@ export default function OwnerEventTypesPage() {
     fetchData();
   }, []);
 
-  if (loading) return <Container><p>Loading...</p></Container>;
-  if (error) return <Container><ErrorAlert message={error} onRetry={fetchData} /></Container>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <ErrorAlert message={error} onRetry={fetchData} />;
 
   return (
-    <Container>
+    <>
       <Title order={2} mb="lg">Event Types</Title>
       <OwnerEventTypesClient eventTypes={eventTypes} />
-    </Container>
+    </>
   );
 }

@@ -85,52 +85,60 @@ export function OwnerBlackoutsClient({ blackouts: initial }: OwnerBlackoutsClien
   return (
     <>
       <Group justify="flex-end" mb="md">
-        <Button leftSection={<IconPlus size={16} />} onClick={open}>
+        <Button leftSection={<IconPlus size={16} />} onClick={open} style={{ backgroundColor: '#111827', color: '#FFFFFF', borderRadius: 8 }}>
           Create Blackout
         </Button>
       </Group>
 
       {items.length === 0 ? (
-        <Text c="dimmed">No blackouts defined.</Text>
+        <div style={{ padding: '40px 24px', textAlign: 'center', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E7EB' }}>
+          <Text size="sm" c="#6B7280">No blackouts defined. Create a blackout to block time on your calendar.</Text>
+        </div>
       ) : (
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Start</Table.Th>
-              <Table.Th>End</Table.Th>
-              <Table.Th>Reason</Table.Th>
-              <Table.Th>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {items.map((b) => (
-              <Table.Tr key={b.id}>
-                <Table.Td>
-                  {dayjs(b.startTime).format('MMM D, YYYY h:mm A')}
-                </Table.Td>
-                <Table.Td>
-                  {dayjs(b.endTime).format('MMM D, YYYY h:mm A')}
-                </Table.Td>
-                <Table.Td>{b.reason || '—'}</Table.Td>
-                <Table.Td>
-                  <ActionIcon
-                    variant="subtle"
-                    color="red"
-                    onClick={() => handleDelete(b.id)}
-                  >
-                    <IconTrash size={18} />
-                  </ActionIcon>
-                </Table.Td>
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Start</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>End</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Reason</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Actions</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {items.map((b) => (
+                <Table.Tr key={b.id}>
+                  <Table.Td style={{ color: '#6B7280' }}>
+                    {dayjs(b.startTime).format('MMM D, YYYY h:mm A')}
+                  </Table.Td>
+                  <Table.Td style={{ color: '#6B7280' }}>
+                    {dayjs(b.endTime).format('MMM D, YYYY h:mm A')}
+                  </Table.Td>
+                  <Table.Td style={{ color: '#111827' }}>{b.reason || '—'}</Table.Td>
+                  <Table.Td>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      onClick={() => handleDelete(b.id)}
+                    >
+                      <IconTrash size={18} />
+                    </ActionIcon>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </div>
       )}
 
       <Modal
         opened={opened}
         onClose={close}
         title="Create Blackout"
+        styles={{
+          content: { borderRadius: 10 },
+          header: { borderBottom: '1px solid #E5E7EB' },
+        }}
       >
         <form onSubmit={form.onSubmit(handleCreate)}>
           <Stack>
@@ -152,7 +160,11 @@ export function OwnerBlackoutsClient({ blackouts: initial }: OwnerBlackoutsClien
               <Button variant="default" onClick={close}>
                 Cancel
               </Button>
-              <Button type="submit" loading={saving}>
+              <Button
+                type="submit"
+                loading={saving}
+                style={{ backgroundColor: '#111827', color: '#FFFFFF', borderRadius: 8 }}
+              >
                 Create
               </Button>
             </Group>
