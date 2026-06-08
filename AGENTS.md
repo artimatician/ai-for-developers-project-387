@@ -24,9 +24,9 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (5 to
 - `backend/` — Django + DRF REST API (port 4010)
 - `frontend/` — Next.js 16 + Mantine 7 app (port 3000)
 - `tests/` — Python E2E test suite (40 API + 5 browser tests)
-- `PLAN.md` — full design doc (data models, endpoints, business rules, slot algorithm)
-- `BACKEND_PLAN.md` — backend implementation plan
-- `openspec/` — OpenSpec specs (owner layout, sidebar, dashboard)
+- `openspec/` — OpenSpec behavioral specs + changes:
+  `specs/` — 11 capability specs (event-types, bookings, blackouts, owner-*, guest-booking-flow, test-strategy)
+  `changes/` — change proposals, designs, tasks, delta specs (archived history)
 - `.opencode/` — OpenCode workflow skills and commands
 
 ## Key conventions
@@ -85,6 +85,21 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (5 to
 - `@doc` on every model + operation
 - `Error` model marked `@error`; operations return union types for error responses
 - Server-generated fields (`id`, `createdAt`, etc.) omitted from request models
+
+## OpenSpec workflow
+
+OpenSpec is the change-management framework used for this project. Workflows are driven by OpenCode skills:
+
+- `openspec-explore` — Investigate problems, brainstorm, clarify requirements (no code)
+- `openspec-propose` — Create a change: proposal.md, design.md, tasks.md, delta specs
+- `openspec-apply-change` — Implement a change by working through tasks.md
+- `openspec-sync-specs` — Merge delta specs back into main specs at `openspec/specs/`
+- `openspec-archive-change` — Finalize and archive a completed change
+
+**Cycle**: explore → propose → implement → sync specs → archive.
+
+Main specs live at `openspec/specs/<capability>/spec.md`. Active changes at
+`openspec/changes/<name>/`; archived ones at `changes/archive/`.
 
 ## Validation
 
