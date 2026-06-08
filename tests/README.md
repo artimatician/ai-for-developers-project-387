@@ -1,6 +1,6 @@
 # Schedule a Call — Test Suite
 
-Python + Playwright + pytest test suite covering all 13 API endpoints (guest + owner) with 40 API tests and 3 browser-level tests.
+Python + Playwright + pytest test suite covering all 13 API endpoints (guest + owner) with 40 API tests and 5 browser-level tests.
 
 ## Prerequisites
 
@@ -55,6 +55,7 @@ tests/
   owner/
     test_event_types.py     — O1 (10 tests, 1 browser)
     test_bookings_blackouts.py  — O2, O3 (6 tests)
+    test_dashboard.py           — O4 (2 browser tests)
     test_integration_edge.py    — E2–E6 (7 API tests)
 ```
 
@@ -63,9 +64,9 @@ tests/
 | Type | Mark | Count | Requires |
 |------|------|-------|----------|
 | API | (none) | 40 | Backend on :4010 |
-| Browser | `@pytest.mark.browser` | 3 | Backend + Frontend + Playwright browsers |
+| Browser | `@pytest.mark.browser` | 5 | Backend + Frontend + Playwright browsers |
 
-## Total: 43 tests (40 API + 3 browser)
+## Total: 45 tests (40 API + 5 browser)
 
 All API tests use `requests.Session` with `trust_env=False` to bypass the HTTP proxy. Browser tests use `@pytest.mark.browser` and auto-skip when Playwright Chromium is not found under the Playwright cache.
 

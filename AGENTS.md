@@ -15,7 +15,7 @@ cd frontend && npm run gen:types                      # regenerate TypeScript ty
 ./tests/run-tests.sh                                  # start backend + frontend, run E2E tests, clean up
 python3 -m pytest tests/ -v --tb=short                # run all E2E tests (requires backend on :4010)
 python3 -m pytest tests/ -v -m "not browser"          # API-only tests (40 total)
-python3 -m pytest tests/ -v -m browser                # browser tests only (3 total)
+python3 -m pytest tests/ -v -m browser                # browser tests only (5 total)
 ```
 
 ## Structure
@@ -23,9 +23,11 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (3 to
 - `spec/*.tsp` — TypeSpec API spec (entrypoint `main.tsp`, models, owner/guest ops)
 - `backend/` — Django + DRF REST API (port 4010)
 - `frontend/` — Next.js 16 + Mantine 7 app (port 3000)
-- `tests/` — Python E2E test suite (40 API + 3 browser tests)
+- `tests/` — Python E2E test suite (40 API + 5 browser tests)
 - `PLAN.md` — full design doc (data models, endpoints, business rules, slot algorithm)
 - `BACKEND_PLAN.md` — backend implementation plan
+- `openspec/` — OpenSpec specs (owner layout, sidebar, dashboard)
+- `.opencode/` — OpenCode workflow skills and commands
 
 ## Key conventions
 
@@ -41,15 +43,15 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (3 to
 
 ## Frontend conventions
 
-- **Routes**: `/` (landing page with HeroSection), `/book` (event type selection grid), `/book/[id]` (scheduling page), `/book/[id]/confirm` (booking form), `/bookings/confirm` (post-booking confirmation), `/how-it-works`, `/owner/*` (owner pages)
+- **Routes**: `/` (landing page with HeroSection), `/book` (event type selection grid), `/book/[id]` (scheduling page), `/book/[id]/confirm` (booking form), `/bookings/confirm` (post-booking confirmation), `/how-it-works`, `/owner` (dashboard), `/owner/*` (owner sub-pages)
 - **Landing page** uses `Navbar` (variant `"landing"`) + `HeroSection` with embedded how-it-works steps
 - **Scheduling page** (`/book/[id]`) uses a **3-column layout**: MeetingSummary | CalendarGrid | TimeSlotList
-- Components live in `frontend/src/components/` — `Navbar`, `HeroSection`, `EventTypeCard`, `ProfileIntroCard`, `MeetingSummary`, `SchedulingPage`, `CalendarGrid`, `TimeSlotList`, `BookingForm`, `ErrorAlert`
+- Components live in `frontend/src/components/` — `Navbar`, `HeroSection`, `EventTypeCard`, `ProfileIntroCard`, `MeetingSummary`, `SchedulingPage`, `CalendarGrid`, `TimeSlotList`, `BookingForm`, `ErrorAlert`, `OwnerSidebar`
 - API client in `frontend/src/lib/api.ts`, types in `frontend/src/lib/api-types.ts` (auto-generated)
 - Design tokens: landing bg `#FFFFFF`, page bg `#F8FAFC`, card surface `#FFFFFF`, border `#E5E7EB`, text primary `#111827`, text secondary `#6B7280`, accent orange `#F97316`, success green `#16A34A`
 - Calendar is a custom component (NOT `@mantine/dates`) for full visual control
 - Slots are computed on-the-fly by the API; frontend groups by date in event type's timezone
-- Owner pages (`/owner/*`) — event types CRUD, bookings list, blackout management — unchanged
+- Owner pages (`/owner`, `/owner/event-types`, `/owner/bookings`, `/owner/blackouts`) use sidebar layout with `OwnerSidebar`; includes dashboard with summary cards
 
 ## Backend conventions
 
@@ -66,7 +68,7 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (3 to
 ## Test conventions
 
 - **Stack**: Python + pytest + requests + Playwright
-- **40 API tests** (no browser needed) + **3 browser tests** (auto-skipped if Playwright browser missing)
+- **40 API tests** (no browser needed) + **5 browser tests** (auto-skipped if Playwright browser missing)
 - **Fixtures** in `tests/conftest.py`: `api_client` (requests.Session, proxy disabled), `event_type`, `second_event_type`, `unique_time` (callable factory), `future_slot`
 - **`unique_time`** generates conflict-free ISO 8601 UTC times starting at 14:00 (day+2), 30min increments across multiple days — avoids blackout window 09:00–13:00
 - **`future_slot`** books a real slot to guarantee it's available for downstream assertions
