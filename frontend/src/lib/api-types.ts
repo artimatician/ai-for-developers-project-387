@@ -252,7 +252,7 @@ export interface components {
             startTime: string;
             /**
              * Format: date-time
-             * @description End time (ISO 8601, UTC) — derived from startTime + 30 minutes
+             * @description End time (ISO 8601, UTC) — derived from startTime + duration
              */
             endTime: string;
             /**
@@ -289,6 +289,7 @@ export interface components {
          *       "eventTypeId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
          *       "startTime": "2026-02-01T15:00:00Z",
          *       "guestName": "Alice Johnson",
+         *       "duration": 45,
          *       "notes": "Looking forward to the call"
          *     }
          */
@@ -305,6 +306,8 @@ export interface components {
             startTime: string;
             /** @description Guest's display name */
             guestName: string;
+            /** @description Optional meeting duration in minutes (default: event type's duration, must be 15-min increment) */
+            duration?: number;
             /** @description Optional notes */
             notes?: string;
         };
@@ -313,7 +316,8 @@ export interface components {
          * @example {
          *       "name": "30-min Consultation",
          *       "description": "Quick introductory call to discuss your needs",
-         *       "timezone": "America/New_York"
+         *       "timezone": "America/New_York",
+         *       "duration": 60
          *     }
          */
         CreateEventTypeRequest: {
@@ -323,6 +327,8 @@ export interface components {
             description: string;
             /** @description IANA timezone identifier (default: UTC) */
             timezone?: string;
+            /** @description Maximum booking duration in minutes (default: 30, min: 15, max: 480) */
+            duration?: number;
         };
         /**
          * @description Error response body
@@ -344,6 +350,7 @@ export interface components {
          *       "name": "30-min Consultation",
          *       "description": "Quick introductory call to discuss your needs",
          *       "timezone": "America/New_York",
+         *       "duration": 30,
          *       "isActive": true,
          *       "createdAt": "2026-01-15T10:00:00Z"
          *     }
@@ -360,6 +367,8 @@ export interface components {
             description: string;
             /** @description IANA timezone identifier */
             timezone: string;
+            /** @description Maximum booking duration in minutes (default: 30, min: 15, max: 480) */
+            duration?: number;
             /** @description Whether this event type is visible to guests */
             isActive: boolean;
             /**
@@ -372,8 +381,9 @@ export interface components {
          * @description Response returned to the guest after a successful booking
          * @example {
          *       "startTime": "2026-02-01T15:00:00Z",
-         *       "endTime": "2026-02-01T15:30:00Z",
-         *       "eventTypeName": "30-min Consultation"
+         *       "endTime": "2026-02-01T15:45:00Z",
+         *       "eventTypeName": "30-min Consultation",
+         *       "duration": 45
          *     }
          */
         GuestBookingResponse: {
@@ -389,6 +399,8 @@ export interface components {
             endTime: string;
             /** @description Event type name at time of booking */
             eventTypeName: string;
+            /** @description Meeting duration in minutes */
+            duration: number;
         };
         /**
          * @description Public subset of event type fields shown in guest list
@@ -396,7 +408,8 @@ export interface components {
          *       "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
          *       "name": "30-min Consultation",
          *       "description": "Quick introductory call to discuss your needs",
-         *       "timezone": "America/New_York"
+         *       "timezone": "America/New_York",
+         *       "duration": 30
          *     }
          */
         PublicEventType: {
@@ -411,6 +424,8 @@ export interface components {
             description: string;
             /** @description IANA timezone identifier */
             timezone: string;
+            /** @description Maximum booking duration in minutes (default: 30) */
+            duration?: number;
         };
         /**
          * @description Computed time slot (not stored)
@@ -440,6 +455,7 @@ export interface components {
          *       "name": "60-min Deep Dive",
          *       "description": "Extended consultation for detailed discussion",
          *       "timezone": "America/Chicago",
+         *       "duration": 60,
          *       "isActive": false
          *     }
          */
@@ -450,6 +466,8 @@ export interface components {
             description?: string;
             /** @description IANA timezone identifier */
             timezone?: string;
+            /** @description Maximum booking duration in minutes (min: 15, max: 480) */
+            duration?: number;
             /** @description Whether this event type is active */
             isActive?: boolean;
         };
@@ -577,7 +595,9 @@ export interface operations {
     };
     Guest_getSlots: {
         parameters: {
-            query?: never;
+            query?: {
+                duration?: number;
+            };
             header?: never;
             path: {
                 id: string;
@@ -593,6 +613,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimeSlot"][];
+                };
+            };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description The server cannot find the requested resource. */

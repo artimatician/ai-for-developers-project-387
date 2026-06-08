@@ -32,6 +32,8 @@ class BookingTests(TestCase):
         data = response.json()
         self.assertIn('startTime', data)
         self.assertIn('endTime', data)
+        self.assertIn('duration', data)
+        self.assertEqual(data['duration'], 30)
         self.assertEqual(data['eventTypeName'], 'Test Meeting')
         self.assertNotIn('id', data)
         self.assertNotIn('notes', data)
@@ -90,6 +92,79 @@ class BookingTests(TestCase):
             'eventTypeId': self.event_type_id,
             'startTime': misaligned.strftime('%Y-%m-%dT%H:%M:%SZ'),
             'guestName': 'John Doe',
+        }, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['code'], 'INVALID_INPUT')
+
+    def test_create_booking_15min_boundary(self):
+        start = datetime.now(timezone.utc) + timedelta(days=1)
+        start = start.replace(hour=10, minute=15, second=0, microsecond=0)
+        response = self.client.post('/api/bookings', {
+            'eventTypeId': self.event_type_id,
+            'startTime': start.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'guestName': 'John Doe',
+        }, content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_booking_with_duration(self):
+        resp = self.client.post('/api/owner/event-types',
+                                {'name': 'Long Meeting', 'description': 'Test', 'duration': 60},
+                                content_type='application/json')
+        et_id = resp.json()['id']
+        start = self._get_future_slot_start()
+        response = self.client.post('/api/bookings', {
+            'eventTypeId': et_id,
+            'startTime': start,
+            'guestName': 'John Doe',
+            'duration': 45,
+        }, content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        start_dt = datetime.fromisoformat(data['startTime'].replace('Z', '+00:00'))
+        end_dt = datetime.fromisoformat(data['endTime'].replace('Z', '+00:00'))
+        self.assertEqual(end_dt - start_dt, timedelta(minutes=45))
+
+    def test_create_booking_duration_exceeds_event_type_max(self):
+        start = self._get_future_slot_start()
+        response = self.client.post('/api/bookings', {
+            'eventTypeId': self.event_type_id,
+            'startTime': start,
+            'guestName': 'John Doe',
+            'duration': 60,
+        }, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['code'], 'INVALID_INPUT')
+
+    def test_create_booking_duration_not_multiple_of_15(self):
+        start = self._get_future_slot_start()
+        response = self.client.post('/api/bookings', {
+            'eventTypeId': self.event_type_id,
+            'startTime': start,
+            'guestName': 'John Doe',
+            'duration': 22,
+        }, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['code'], 'INVALID_INPUT')
+
+    def test_create_booking_duration_below_minimum(self):
+        start = self._get_future_slot_start()
+        response = self.client.post('/api/bookings', {
+            'eventTypeId': self.event_type_id,
+            'startTime': start,
+            'guestName': 'John Doe',
+            'duration': 5,
+        }, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['code'], 'INVALID_INPUT')
+
+    def test_create_booking_end_time_outside_operating_hours(self):
+        start = datetime.now(timezone.utc) + timedelta(days=1)
+        start = start.replace(hour=17, minute=30, second=0, microsecond=0)
+        response = self.client.post('/api/bookings', {
+            'eventTypeId': self.event_type_id,
+            'startTime': start.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'guestName': 'John Doe',
+            'duration': 45,
         }, content_type='application/json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['code'], 'INVALID_INPUT')

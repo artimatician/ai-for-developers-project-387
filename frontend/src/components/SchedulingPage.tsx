@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -10,6 +10,8 @@ import { Navbar } from './Navbar';
 import { MeetingSummary } from './MeetingSummary';
 import { CalendarGrid } from './CalendarGrid';
 import { TimeSlotList } from './TimeSlotList';
+import { DurationPicker } from './DurationPicker';
+import { getSlots } from '@/lib/api';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,11 +25,18 @@ interface SchedulingPageProps {
   initialDate?: string | null;
 }
 
-export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPageProps) {
+export function SchedulingPage({ eventType, slots: initialSlots, initialDate }: SchedulingPageProps) {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(initialDate || null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [timeFormat, setTimeFormat] = useState<'12h' | '24h'>('12h');
+  const [duration, setDuration] = useState<number>(eventType.duration ?? 30);
+  const [slots, setSlots] = useState<TimeSlot[]>(initialSlots);
+
+  const fetchSlots = useCallback(async (d: number) => {
+    const s = await getSlots(eventType.id, d);
+    setSlots(s);
+  }, [eventType.id]);
 
   useEffect(() => {
     if (slots.length > 0 && !selectedDate) {
@@ -48,9 +57,15 @@ export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPage
     setSelectedSlot(startTime === selectedSlot ? null : startTime);
   };
 
+  const handleDurationChange = (newDuration: number) => {
+    setDuration(newDuration);
+    setSelectedSlot(null);
+    fetchSlots(newDuration);
+  };
+
   const handleContinue = () => {
     if (!selectedSlot) return;
-    router.push(`/book/${eventType.id}/confirm?startTime=${encodeURIComponent(selectedSlot)}&eventTypeName=${encodeURIComponent(eventType.name)}`);
+    router.push(`/book/${eventType.id}/confirm?startTime=${encodeURIComponent(selectedSlot)}&duration=${duration}&eventTypeName=${encodeURIComponent(eventType.name)}`);
   };
 
   return (
@@ -62,7 +77,7 @@ export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPage
           display: 'flex', overflow: 'hidden',
         }}>
         <div style={{ flex: '0 0 280px', padding: 32, borderRight: '1px solid #E5E7EB' }}>
-          <MeetingSummary eventType={eventType} />
+          <MeetingSummary eventType={eventType} duration={duration} />
         </div>
         <div style={{ flex: '0 0 auto', minWidth: 320, padding: 32, borderRight: '1px solid #E5E7EB' }}>
           <CalendarGrid
@@ -73,6 +88,13 @@ export function SchedulingPage({ eventType, slots, initialDate }: SchedulingPage
           />
         </div>
         <div style={{ flex: 1, minWidth: 240, padding: 32, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ marginBottom: 20 }}>
+            <DurationPicker
+              value={duration}
+              maxDuration={eventType.duration ?? 30}
+              onChange={handleDurationChange}
+            />
+          </div>
           <TimeSlotList
             eventTypeId={eventType.id}
             eventTypeName={eventType.name}

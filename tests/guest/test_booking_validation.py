@@ -109,6 +109,8 @@ def test_booking_response_shape(api_client, event_type, unique_time):
     data = resp.json()
     assert "startTime" in data
     assert "endTime" in data
+    assert "duration" in data
+    assert data["duration"] == 30
     assert data["eventTypeName"] == event_type["name"]
     assert "id" not in data
     assert "notes" not in data

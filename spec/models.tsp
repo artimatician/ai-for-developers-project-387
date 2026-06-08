@@ -23,6 +23,7 @@ model Error {
   name: "30-min Consultation",
   description: "Quick introductory call to discuss your needs",
   timezone: "America/New_York",
+  duration: 30,
   isActive: true,
   createdAt: utcDateTime.fromISO("2026-01-15T10:00:00Z")
 })
@@ -38,6 +39,10 @@ model EventType {
   description: string;
   @doc("IANA timezone identifier")
   timezone: string;
+  @doc("Maximum booking duration in minutes (default: 30, min: 15, max: 480)")
+  @minValue(15)
+  @maxValue(480)
+  duration?: integer;
   @doc("Whether this event type is visible to guests")
   isActive: boolean;
   @doc("Creation timestamp (ISO 8601, UTC)")
@@ -48,7 +53,8 @@ model EventType {
 @example(#{
   name: "30-min Consultation",
   description: "Quick introductory call to discuss your needs",
-  timezone: "America/New_York"
+  timezone: "America/New_York",
+  duration: 60
 })
 model CreateEventTypeRequest {
   @doc("Display name")
@@ -59,6 +65,10 @@ model CreateEventTypeRequest {
   description: string;
   @doc("IANA timezone identifier (default: UTC)")
   timezone?: string;
+  @doc("Maximum booking duration in minutes (default: 30, min: 15, max: 480)")
+  @minValue(15)
+  @maxValue(480)
+  duration?: integer;
 }
 
 @doc("Payload to partially update an event type")
@@ -66,6 +76,7 @@ model CreateEventTypeRequest {
   name: "60-min Deep Dive",
   description: "Extended consultation for detailed discussion",
   timezone: "America/Chicago",
+  duration: 60,
   isActive: false
 })
 model UpdateEventTypeRequest {
@@ -77,6 +88,10 @@ model UpdateEventTypeRequest {
   description?: string;
   @doc("IANA timezone identifier")
   timezone?: string;
+  @doc("Maximum booking duration in minutes (min: 15, max: 480)")
+  @minValue(15)
+  @maxValue(480)
+  duration?: integer;
   @doc("Whether this event type is active")
   isActive?: boolean;
 }
@@ -86,7 +101,8 @@ model UpdateEventTypeRequest {
   id: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
   name: "30-min Consultation",
   description: "Quick introductory call to discuss your needs",
-  timezone: "America/New_York"
+  timezone: "America/New_York",
+  duration: 30
 })
 model PublicEventType {
   @doc("Unique identifier")
@@ -100,6 +116,8 @@ model PublicEventType {
   description: string;
   @doc("IANA timezone identifier")
   timezone: string;
+  @doc("Maximum booking duration in minutes (default: 30)")
+  duration?: integer;
 }
 
 @doc("Full booking resource returned to the owner")
@@ -130,7 +148,7 @@ model Booking {
   notes?: string;
   @doc("Start time (ISO 8601, UTC)")
   startTime: utcDateTime;
-  @doc("End time (ISO 8601, UTC) — derived from startTime + 30 minutes")
+  @doc("End time (ISO 8601, UTC) — derived from startTime + duration")
   endTime: utcDateTime;
   @doc("Creation timestamp (ISO 8601, UTC)")
   createdAt: utcDateTime;
@@ -141,6 +159,7 @@ model Booking {
   eventTypeId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   startTime: utcDateTime.fromISO("2026-02-01T15:00:00Z"),
   guestName: "Alice Johnson",
+  duration: 45,
   notes: "Looking forward to the call"
 })
 model CreateBookingRequest {
@@ -152,6 +171,10 @@ model CreateBookingRequest {
   @doc("Guest's display name")
   @maxLength(1000)
   guestName: string;
+  @doc("Optional meeting duration in minutes (default: event type's duration, must be 15-min increment)")
+  @minValue(15)
+  @maxValue(480)
+  duration?: integer;
   @doc("Optional notes")
   @maxLength(1000)
   notes?: string;
@@ -160,8 +183,9 @@ model CreateBookingRequest {
 @doc("Response returned to the guest after a successful booking")
 @example(#{
   startTime: utcDateTime.fromISO("2026-02-01T15:00:00Z"),
-  endTime: utcDateTime.fromISO("2026-02-01T15:30:00Z"),
-  eventTypeName: "30-min Consultation"
+  endTime: utcDateTime.fromISO("2026-02-01T15:45:00Z"),
+  eventTypeName: "30-min Consultation",
+  duration: 45
 })
 model GuestBookingResponse {
   @doc("Start time (ISO 8601, UTC)")
@@ -170,6 +194,8 @@ model GuestBookingResponse {
   endTime: utcDateTime;
   @doc("Event type name at time of booking")
   eventTypeName: string;
+  @doc("Meeting duration in minutes")
+  duration: integer;
 }
 
 @doc("One-off time range that prevents new bookings")
