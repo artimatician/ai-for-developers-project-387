@@ -53,7 +53,16 @@ def get_slots(request, id):
         event_type = EventType.objects.get(id=id, isActive=True)
     except EventType.DoesNotExist:
         return error_response('EVENT_TYPE_NOT_FOUND', 'Event type not found', 404)
-    slots = generate_slots(event_type)
+    duration_param = request.query_params.get('duration')
+    duration = int(duration_param) if duration_param else None
+    if duration is not None:
+        if duration < 15:
+            return error_response('INVALID_INPUT', 'Duration must be at least 15 minutes', 400)
+        if duration > event_type.duration:
+            return error_response('INVALID_INPUT', f'Duration must not exceed event type maximum of {event_type.duration} minutes', 400)
+        if duration % 15 != 0:
+            return error_response('INVALID_INPUT', 'Duration must be a multiple of 15 minutes', 400)
+    slots = generate_slots(event_type, duration=duration)
     serializer = TimeSlotSerializer(slots, many=True)
     return Response(serializer.data)
 
@@ -71,12 +80,15 @@ def create_booking(request):
     start_time = data['startTime']
     guest_name = data['guestName']
     notes = data.get('notes')
+    duration = data.get('duration')
 
-    event_type, err, status = validate_booking(event_type_id, start_time)
+    event_type, err, status = validate_booking(event_type_id, start_time, duration=duration)
     if err:
         return error_response(err['code'], err['message'], status)
 
-    end_time = start_time + timedelta(minutes=30)
+    if duration is None:
+        duration = event_type.duration
+    end_time = start_time + timedelta(minutes=duration)
     booking = Booking.objects.create(
         eventTypeId=event_type,
         eventTypeName=event_type.name,
@@ -89,6 +101,7 @@ def create_booking(request):
         'startTime': booking.startTime,
         'endTime': booking.endTime,
         'eventTypeName': booking.eventTypeName,
+        'duration': duration,
     })
     return Response(response_serializer.data, status=201)
 
@@ -112,6 +125,7 @@ def event_types_owner(request):
             name=data['name'],
             description=data['description'],
             timezone=data.get('timezone', 'UTC'),
+            duration=data.get('duration', 30),
         )
         output = EventTypeSerializer(event_type)
         return Response(output.data, status=201)

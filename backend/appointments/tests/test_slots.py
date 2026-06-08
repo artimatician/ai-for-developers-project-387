@@ -23,26 +23,22 @@ class SlotTests(TestCase):
     def test_14_day_window(self):
         response = self.client.get(f'/api/event-types/{self.et_id}/slots')
         data = response.json()
-        # 14 days * 18 slots per day = 252 total
-        self.assertEqual(len(data), 252)
+        # 14 days * 35 slots per day = 490 total (15-min intervals, 09:00-17:30 for 30-min duration)
+        self.assertEqual(len(data), 490)
 
-    def test_each_day_has_18_slots(self):
+    def test_each_day_has_35_slots(self):
         response = self.client.get(f'/api/event-types/{self.et_id}/slots')
         data = response.json()
-        # Group by day and verify each has 18
         days = {}
         for slot in data:
             day = slot['startTime'][:10]
             days[day] = days.get(day, 0) + 1
         for day, count in days.items():
-            self.assertEqual(count, 18, f"Day {day} has {count} slots, expected 18")
+            self.assertEqual(count, 35, f"Day {day} has {count} slots, expected 35")
 
     def test_slots_have_available_true_for_future(self):
         response = self.client.get(f'/api/event-types/{self.et_id}/slots')
         data = response.json()
-        now = datetime.now(timezone.utc)
-        # Find a slot far in the future (should be available)
-        future_slots = [s for s in data if 'available' in s]
         any_available = any(s['available'] for s in data)
         self.assertTrue(any_available)
 
@@ -57,7 +53,6 @@ class SlotTests(TestCase):
         response = self.client.get(f'/api/event-types/{self.et_id}/slots')
         data = response.json()
         now = datetime.now(timezone.utc)
-        # There should be some past slots marked unavailable
         past_found = False
         for slot in data:
             slot_start = datetime.strptime(slot['startTime'], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
@@ -139,4 +134,39 @@ class SlotTests(TestCase):
         ny_id = resp.json()['id']
         response = self.client.get(f'/api/event-types/{ny_id}/slots')
         data = response.json()
-        self.assertEqual(len(data), 252)
+        self.assertEqual(len(data), 490)
+
+    def test_slots_with_duration_param(self):
+        resp = self.client.post('/api/owner/event-types',
+                                {'name': 'Long Meeting', 'description': 'Test', 'duration': 60},
+                                content_type='application/json')
+        et_id = resp.json()['id']
+        response = self.client.get(f'/api/event-types/{et_id}/slots?duration=60')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        # With 60-min duration, valid start times: 09:00 to 17:00 (33 per day)
+        # 09:00, 09:15, ..., 17:00 = 33 start times * 14 = 462
+        self.assertEqual(len(data), 462)
+
+    def test_slots_with_invalid_duration_param(self):
+        response = self.client.get(f'/api/event-types/{self.et_id}/slots?duration=7')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['code'], 'INVALID_INPUT')
+
+    def test_slots_with_duration_exceeding_event_type_max(self):
+        # Event type created with default duration=30, so 60 exceeds max
+        response = self.client.get(f'/api/event-types/{self.et_id}/slots?duration=60')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['code'], 'INVALID_INPUT')
+
+    def test_15min_start_time_slots(self):
+        response = self.client.get(f'/api/event-types/{self.et_id}/slots')
+        data = response.json()
+        # First slot of the day should be at 09:00
+        first_slots = [s for s in data if s['startTime'].endswith('09:00:00Z')]
+        self.assertTrue(len(first_slots) > 0)
+        # Check that 15-min boundary slots exist
+        has_15 = any(s['startTime'].endswith(':15:00Z') for s in data)
+        has_45 = any(s['startTime'].endswith(':45:00Z') for s in data)
+        self.assertTrue(has_15, "Should have 15-min boundary slots")
+        self.assertTrue(has_45, "Should have 45-min boundary slots")

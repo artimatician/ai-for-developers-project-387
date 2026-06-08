@@ -130,6 +130,6 @@ def test_timezone_event_type_slots(api_client):
     et = resp.json()
 
     slots = api_client.get(f"/api/event-types/{et['id']}/slots").json()
-    assert len(slots) == 252
+    assert len(slots) == 490
     assert all(s["startTime"].endswith("Z") for s in slots)
     assert all(s["endTime"].endswith("Z") for s in slots)

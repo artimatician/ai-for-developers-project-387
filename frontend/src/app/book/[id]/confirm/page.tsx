@@ -22,6 +22,7 @@ export default function ConfirmBookingPage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const searchParams = useSearchParams();
   const startTime = searchParams.get('startTime');
+  const durationParam = searchParams.get('duration');
   const eventTypeName = searchParams.get('eventTypeName') || 'Event';
 
   const [eventType, setEventType] = useState<EventType | null>(null);
@@ -47,8 +48,10 @@ export default function ConfirmBookingPage({ params }: { params: Promise<{ id: s
   }
 
   const tz = eventType?.timezone || 'UTC';
+  const eventTypeDuration = eventType?.duration ?? 30;
+  const duration = durationParam ? parseInt(durationParam, 10) : eventTypeDuration;
   const dateLabel = dayjs(startTime).tz(tz).format('dddd, MMMM D, YYYY');
-  const timeLabel = `${dayjs(startTime).tz(tz).format('h:mm A')} – ${dayjs(startTime).tz(tz).add(30, 'minute').format('h:mm A')}`;
+  const timeLabel = `${dayjs(startTime).tz(tz).format('h:mm A')} – ${dayjs(startTime).tz(tz).add(duration, 'minute').format('h:mm A')}`;
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
@@ -88,6 +91,10 @@ export default function ConfirmBookingPage({ params }: { params: Promise<{ id: s
                   <div style={{ fontSize: 14, color: '#111827' }}>{timeLabel}</div>
                 </div>
                 <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #DDE6F5', borderRadius: 8, padding: '12px 16px' }}>
+                  <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Duration</div>
+                  <div style={{ fontSize: 14, color: '#111827' }}>{duration} min</div>
+                </div>
+                <div style={{ backgroundColor: '#F0F4FF', border: '1px solid #DDE6F5', borderRadius: 8, padding: '12px 16px' }}>
                   <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Timezone</div>
                   <div style={{ fontSize: 14, color: '#111827' }}>{tz}</div>
                 </div>
@@ -98,6 +105,7 @@ export default function ConfirmBookingPage({ params }: { params: Promise<{ id: s
               eventTypeId={id}
               eventTypeName={eventTypeName}
               startTime={startTime}
+              duration={duration}
             />
           </>
         )}

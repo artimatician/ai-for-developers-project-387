@@ -15,6 +15,7 @@ function ConfirmContent() {
   const startTime = searchParams.get('startTime');
   const endTime = searchParams.get('endTime');
   const eventTypeName = searchParams.get('eventTypeName');
+  const durationParam = searchParams.get('duration');
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
@@ -41,6 +42,11 @@ function ConfirmContent() {
                     : '—'}{' '}
                   UTC
                 </Text>
+                {durationParam && (
+                  <Text size="sm" c="#6B7280">
+                    Duration: {durationParam} min
+                  </Text>
+                )}
               </Stack>
             </Paper>
             <Link href="/book" style={{ textDecoration: 'underline', color: '#6B7280', fontSize: 14 }}>

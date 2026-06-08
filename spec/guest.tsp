@@ -24,7 +24,10 @@ namespace ScheduleACall.Guest {
   @doc("Get available time slots for the next 14 days")
   @get
   @route("/event-types/{id}/slots")
-  op getSlots(@path @format("uuid") id: string): TimeSlot[] | {
+  op getSlots(@path @format("uuid") id: string, @query duration?: integer): TimeSlot[] | {
+    @statusCode _: 400;
+    @body body: Error;
+  } | {
     @statusCode _: 404;
     @body body: Error;
   };

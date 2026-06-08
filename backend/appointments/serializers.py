@@ -5,7 +5,7 @@ from appointments.models import EventType, Booking, Blackout
 class EventTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventType
-        fields = ['id', 'name', 'description', 'timezone', 'isActive', 'createdAt']
+        fields = ['id', 'name', 'description', 'timezone', 'duration', 'isActive', 'createdAt']
         read_only_fields = ['id', 'createdAt']
 
 
@@ -13,6 +13,7 @@ class CreateEventTypeSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=1000)
     description = serializers.CharField(max_length=1000)
     timezone = serializers.CharField(max_length=100, default='UTC', required=False)
+    duration = serializers.IntegerField(default=30, required=False)
 
     def validate_timezone(self, value):
         from appointments.services import is_valid_timezone
@@ -20,11 +21,21 @@ class CreateEventTypeSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"Invalid timezone: {value}")
         return value
 
+    def validate_duration(self, value):
+        if value < 15:
+            raise serializers.ValidationError("Duration must be at least 15 minutes")
+        if value > 480:
+            raise serializers.ValidationError("Duration must not exceed 480 minutes")
+        if value % 15 != 0:
+            raise serializers.ValidationError("Duration must be a multiple of 15 minutes")
+        return value
+
 
 class UpdateEventTypeSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=1000, required=False)
     description = serializers.CharField(max_length=1000, required=False)
     timezone = serializers.CharField(max_length=100, required=False)
+    duration = serializers.IntegerField(required=False)
     isActive = serializers.BooleanField(required=False)
 
     def validate_timezone(self, value):
@@ -33,11 +44,20 @@ class UpdateEventTypeSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"Invalid timezone: {value}")
         return value
 
+    def validate_duration(self, value):
+        if value < 15:
+            raise serializers.ValidationError("Duration must be at least 15 minutes")
+        if value > 480:
+            raise serializers.ValidationError("Duration must not exceed 480 minutes")
+        if value % 15 != 0:
+            raise serializers.ValidationError("Duration must be a multiple of 15 minutes")
+        return value
+
 
 class PublicEventTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventType
-        fields = ['id', 'name', 'description', 'timezone']
+        fields = ['id', 'name', 'description', 'timezone', 'duration']
 
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -49,17 +69,19 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'createdAt']
 
 
+class GuestBookingResponseSerializer(serializers.Serializer):
+    startTime = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%SZ')
+    endTime = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%SZ')
+    eventTypeName = serializers.CharField()
+    duration = serializers.IntegerField()
+
+
 class CreateBookingSerializer(serializers.Serializer):
     eventTypeId = serializers.UUIDField()
     startTime = serializers.DateTimeField()
     guestName = serializers.CharField(max_length=1000)
     notes = serializers.CharField(max_length=1000, allow_null=True, required=False)
-
-
-class GuestBookingResponseSerializer(serializers.Serializer):
-    startTime = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%SZ')
-    endTime = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%SZ')
-    eventTypeName = serializers.CharField()
+    duration = serializers.IntegerField(required=False)
 
 
 class BlackoutSerializer(serializers.ModelSerializer):

@@ -47,7 +47,7 @@ export function EventTypeCard({ eventType }: EventTypeCardProps) {
               backgroundColor: '#F3F4F6', color: '#4B5563', fontSize: 12, fontWeight: 500,
               padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap', marginLeft: 8,
             }}>
-              30 min
+              {eventType.duration ?? 30} min
             </span>
           </div>
           <p style={{ fontSize: 14, color: '#6B7280', margin: 0, lineHeight: 1.5 }}>

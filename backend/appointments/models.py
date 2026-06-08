@@ -8,6 +8,7 @@ class EventType(models.Model):
     name = models.CharField(max_length=1000)
     description = models.CharField(max_length=1000)
     timezone = models.CharField(max_length=100, default='UTC')
+    duration = models.IntegerField(default=30)
     isActive = models.BooleanField(default=True)
     createdAt = models.DateTimeField(auto_now_add=True)
 
