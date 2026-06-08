@@ -9,6 +9,7 @@ import {
   Stack,
   Modal,
   TextInput,
+  NumberInput,
   Select,
   ActionIcon,
   Text,
@@ -42,7 +43,7 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
   const router = useRouter();
 
   const form = useForm({
-    initialValues: { name: '', description: '', timezone: 'UTC' },
+    initialValues: { name: '', description: '', timezone: 'UTC', duration: 30 },
     validate: {
       name: (v) => (v.trim().length > 0 ? null : 'Name is required'),
       description: (v) => (v.length <= 1000 ? null : 'Max 1000 characters'),
@@ -57,7 +58,7 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
   };
 
   const openEdit = (et: EventType) => {
-    form.setValues({ name: et.name, description: et.description, timezone: et.timezone });
+    form.setValues({ name: et.name, description: et.description, timezone: et.timezone, duration: et.duration ?? 30 });
     setEditing(et);
     setCreating(false);
     open();
@@ -114,6 +115,7 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
             <Table.Thead>
               <Table.Tr>
                 <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Name</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Duration</Table.Th>
                 <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Timezone</Table.Th>
                 <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Active</Table.Th>
                 <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Actions</Table.Th>
@@ -123,6 +125,7 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
               {eventTypes.map((et) => (
                 <Table.Tr key={et.id}>
                   <Table.Td style={{ color: '#111827', fontWeight: 500 }}>{et.name}</Table.Td>
+                  <Table.Td style={{ color: '#6B7280' }}>{et.duration ?? 30} min</Table.Td>
                   <Table.Td style={{ color: '#6B7280' }}>{et.timezone}</Table.Td>
                   <Table.Td>
                     <Switch
@@ -167,6 +170,15 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
               data={timezones}
               searchable
               {...form.getInputProps('timezone')}
+            />
+            <NumberInput
+              label="Duration (minutes)"
+              description="Maximum booking duration (15–480 min, 15-min increments)"
+              min={15}
+              max={480}
+              step={15}
+              clampBehavior="strict"
+              {...form.getInputProps('duration')}
             />
             <Group justify="flex-end">
               <Button variant="default" onClick={close}>

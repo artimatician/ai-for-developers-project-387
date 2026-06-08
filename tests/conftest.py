@@ -97,9 +97,9 @@ def unique_time():
         global _unique_time_counter
         _unique_time_counter += 1
         slot_minutes = (_unique_time_counter - 1) * 30
-        slots_per_day = 8  # 14:00 to 17:30 (8 slots of 30min)
-        days = slot_minutes // (slots_per_day * 30)
-        slot_in_day = slot_minutes % (slots_per_day * 30)
+        slots_per_day = 14  # 14:00 to 17:30 (14 slots of 15min)
+        days = slot_minutes // (slots_per_day * 15)
+        slot_in_day = slot_minutes % (slots_per_day * 15)
         start = (datetime.now(timezone.utc) + timedelta(days=2 + days)).replace(
             hour=14, minute=0, second=0, microsecond=0
         ) + timedelta(minutes=slot_in_day)
@@ -117,3 +117,16 @@ def future_slot(api_client, event_type, unique_time):
     })
     assert resp.status_code == 201, f"future_slot failed at {t}: {resp.json()}"
     return t
+
+
+@pytest.fixture(scope="function")
+def long_event_type(api_client):
+    resp = api_client.post("/api/owner/event-types", json={
+        "name": "Long Meeting",
+        "description": "60 min consultation",
+        "timezone": "UTC",
+        "duration": 60,
+    })
+    assert resp.status_code == 201
+    et = resp.json()
+    return {"id": et["id"], "name": et["name"], "timezone": et["timezone"], "duration": et["duration"]}

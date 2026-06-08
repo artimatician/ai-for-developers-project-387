@@ -7,7 +7,7 @@ def test_full_booking_flow(page, api_client, event_type):
     page.wait_for_load_state("networkidle")
 
     assert page.get_by_text(event_type["name"]).is_visible()
-    assert page.get_by_text("30 min", exact=True).is_visible()
+    assert page.get_by_text(f"{event_type.get('duration', 30)} min", exact=True).first.is_visible()
     assert page.get_by_text(event_type["timezone"]).is_visible()
 
     assert page.locator(".cal-month-label").is_visible()
