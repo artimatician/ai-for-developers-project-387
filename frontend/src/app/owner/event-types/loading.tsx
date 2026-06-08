@@ -1,3 +1,5 @@
+'use client';
+
 import { Skeleton, Table, Group } from '@mantine/core';
 
 export default function Loading() {
