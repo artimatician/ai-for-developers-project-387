@@ -110,6 +110,6 @@ def test_event_type_list_browser(page, api_client):
     page.goto("/owner/event-types")
     page.wait_for_load_state("networkidle")
 
-    assert page.get_by_text("Event Types").is_visible()
-    assert page.get_by_text("Alpha").is_visible()
-    assert page.get_by_text("Beta").is_visible()
+    assert page.get_by_role("heading", name="Event Types").is_visible()
+    assert page.get_by_role("cell", name="Alpha").first.is_visible()
+    assert page.get_by_role("cell", name="Beta").first.is_visible()
