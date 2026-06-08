@@ -18,30 +18,31 @@ Browser tests require Playwright's bundled Chromium. After installing the Python
 python3 -m playwright install chromium
 ```
 
+Ubuntu 26.04 LTS is not yet officially supported by Playwright (as of version 1.59.1). Use this command:
+```bash
+PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 python3 -m playwright install chromium
+```
+
 On a minimal system (Docker, CI, etc.) Chromium may fail to start due to missing shared libraries. Install them with:
 
 ```bash
 # Ubuntu / Debian
 sudo apt-get install -y \
-  libcups2t64 \
-  libglib2.0-0t64 \
+  libnss3 libnspr4 \
   libatk1.0-0t64 \
-  libatk-bridge2.0-0t64 \
-  libdbus-1-3 \
-  libxcb1 \
+  libatk-bridge2.0-0t64\
+  libatspi2.0-0t64 \
+  libcups2t64 \
   libxkbcommon0 \
-  libasound2t64 \
-  libgbm1 \
-  libx11-6 \
-  libxext6 \
-  libcairo2 \
-  libpango-1.0-0 \
   libxcomposite1 \
   libxdamage1 \
   libxfixes3 \
   libxrandr2 \
-  libatspi2.0-0t64 \
-  libgtk-3-0t64
+  libgbm1 libdrm2 \
+  libpango-1.0-0 \
+  libcairo2 \
+  libasound2t64 \
+  libwayland-client0
 ```
 
 > The `t64` suffix is used on Ubuntu 24.10+ for the 64-bit time_t transition.
