@@ -1,6 +1,7 @@
 'use client';
 
-import { Container, Title, Text } from '@mantine/core';
+import { Navbar } from '@/components/Navbar';
+import { OwnerSidebar } from '@/components/OwnerSidebar';
 
 export default function OwnerLayout({
   children,
@@ -8,9 +9,20 @@ export default function OwnerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Container>
-      <Title order={3}>Owner Dashboard</Title>
-      {children}
-    </Container>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh' }}>
+      <Navbar variant="inner" />
+      <div style={{ display: 'flex' }}>
+        <OwnerSidebar />
+        <main
+          style={{
+            flex: 1,
+            padding: '48px 32px',
+            maxWidth: 1120,
+          }}
+        >
+          {children}
+        </main>
+      </div>
+    </div>
   );
 }

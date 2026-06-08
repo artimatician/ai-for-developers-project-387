@@ -99,49 +99,57 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
   return (
     <>
       <Group justify="flex-end" mb="md">
-        <Button leftSection={<IconPlus size={16} />} onClick={openCreate}>
+        <Button leftSection={<IconPlus size={16} />} onClick={openCreate} style={{ backgroundColor: '#111827', color: '#FFFFFF', borderRadius: 8 }}>
           Create Event Type
         </Button>
       </Group>
 
       {eventTypes.length === 0 ? (
-        <Text c="dimmed">No event types yet.</Text>
+        <div style={{ padding: '40px 24px', textAlign: 'center', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E7EB' }}>
+          <Text size="sm" c="#6B7280">No event types yet. Create one to start accepting bookings.</Text>
+        </div>
       ) : (
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Name</Table.Th>
-              <Table.Th>Timezone</Table.Th>
-              <Table.Th>Active</Table.Th>
-              <Table.Th>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {eventTypes.map((et) => (
-              <Table.Tr key={et.id}>
-                <Table.Td>{et.name}</Table.Td>
-                <Table.Td>{et.timezone}</Table.Td>
-                <Table.Td>
-                  <Switch
-                    checked={et.isActive}
-                    onChange={() => handleToggleActive(et)}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <ActionIcon variant="subtle" onClick={() => openEdit(et)}>
-                    <IconEdit size={18} />
-                  </ActionIcon>
-                </Table.Td>
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Name</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Timezone</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Active</Table.Th>
+                <Table.Th style={{ color: '#6B7280', fontWeight: 600, fontSize: 12 }}>Actions</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {eventTypes.map((et) => (
+                <Table.Tr key={et.id}>
+                  <Table.Td style={{ color: '#111827', fontWeight: 500 }}>{et.name}</Table.Td>
+                  <Table.Td style={{ color: '#6B7280' }}>{et.timezone}</Table.Td>
+                  <Table.Td>
+                    <Switch
+                      checked={et.isActive}
+                      onChange={() => handleToggleActive(et)}
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <ActionIcon variant="subtle" onClick={() => openEdit(et)}>
+                      <IconEdit size={18} />
+                    </ActionIcon>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </div>
       )}
 
       <Modal
         opened={opened}
         onClose={close}
         title={editing ? 'Edit Event Type' : 'Create Event Type'}
+        styles={{
+          content: { borderRadius: 10 },
+          header: { borderBottom: '1px solid #E5E7EB' },
+        }}
       >
         <form onSubmit={form.onSubmit(handleSave)}>
           <Stack>
@@ -164,7 +172,11 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
               <Button variant="default" onClick={close}>
                 Cancel
               </Button>
-              <Button type="submit" loading={saving}>
+              <Button
+                type="submit"
+                loading={saving}
+                style={{ backgroundColor: '#111827', color: '#FFFFFF', borderRadius: 8 }}
+              >
                 Save
               </Button>
             </Group>

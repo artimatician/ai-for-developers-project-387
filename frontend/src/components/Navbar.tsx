@@ -25,7 +25,7 @@ export function Navbar({ variant }: NavbarProps) {
                 Book
               </Text>
             </Link>
-            <Link href="/owner/event-types" style={{ textDecoration: 'none' }}>
+            <Link href="/owner" style={{ textDecoration: 'none' }}>
               <Text size="sm" fw={500} c="#A1A1AA">
                 Owner
               </Text>
@@ -78,7 +78,7 @@ export function Navbar({ variant }: NavbarProps) {
               Book
             </Text>
           </Link>
-          <Link href="/owner/event-types" style={{ textDecoration: 'none' }}>
+          <Link href="/owner" style={{ textDecoration: 'none' }}>
             <Text size="sm" fw={500} c="#6B7280">
               Owner
             </Text>
