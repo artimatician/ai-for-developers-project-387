@@ -1,6 +1,8 @@
 from datetime import datetime, timezone, timedelta
 
 
+# TODO: fix - future_slot fixture errors with 409 on second test run
+# without backend restart. See test_availability_edge.py for root cause.
 def test_list_bookings(api_client, event_type, future_slot):
     resp = api_client.get("/api/owner/bookings")
     assert resp.status_code == 200
@@ -10,6 +12,8 @@ def test_list_bookings(api_client, event_type, future_slot):
     assert matching[0]["eventTypeName"] == event_type["name"]
 
 
+# TODO: fix - fails with 409 on second test run without backend restart.
+# See test_availability_edge.py for root cause.
 def test_filter_bookings_by_event_type(api_client, event_type, second_event_type, unique_time):
     s1 = unique_time()
     s2 = unique_time()
@@ -33,6 +37,8 @@ def test_filter_bookings_by_event_type(api_client, event_type, second_event_type
     assert bookings[0]["guestName"] == "Alice"
 
 
+# TODO: fix - fails with 409 on second test run without backend restart.
+# See test_availability_edge.py for root cause.
 def test_bookings_ordered_by_start_time(api_client, event_type, unique_time):
     t1 = unique_time()
     t2 = unique_time()

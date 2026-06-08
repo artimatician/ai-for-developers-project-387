@@ -7,11 +7,10 @@ BACKEND_URL = "http://localhost:4010"
 
 def _playwright_browser_available():
     try:
-        import playwright._impl._path_utils as pu
-        browsers_path = pu.get_cache_directory()
-        chromium_path = os.path.join(browsers_path, "chromium-*")
-        import glob
-        return len(glob.glob(chromium_path)) > 0
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            path = p.chromium.executable_path
+            return os.path.isfile(path)
     except Exception:
         return False
 
@@ -82,6 +81,12 @@ def second_event_type(api_client):
     return resp.json()
 
 
+# TODO: fix - _unique_time_counter is a module-level global that resets on
+# pytest restart but the SQLite :memory: backend DB doesn't. Running the
+# suite twice without restarting the backend causes SLOT_UNAVAILABLE (409)
+# because unique_time() re-generates already-booked slots.
+# Fix ideas: make the counter time-aware (derive from current time instead of
+# a plain counter), or clean DB between runs, or restart backend automatically.
 _unique_time_counter = 0
 
 

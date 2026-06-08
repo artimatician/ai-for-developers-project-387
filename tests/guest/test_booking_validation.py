@@ -72,6 +72,8 @@ def test_booking_missing_required_fields(api_client):
     assert resp.json()["code"] == "INVALID_INPUT"
 
 
+# TODO: fix - future_slot fixture errors with 409 on second test run
+# without backend restart. See test_availability_edge.py for root cause.
 def test_double_booking_same_slot(api_client, event_type, future_slot):
     resp = api_client.post("/api/bookings", json={
         "eventTypeId": event_type["id"],
@@ -82,6 +84,8 @@ def test_double_booking_same_slot(api_client, event_type, future_slot):
     assert resp.json()["code"] == "SLOT_UNAVAILABLE"
 
 
+# TODO: fix - fails with 409 on second test run without backend restart.
+# See test_availability_edge.py for root cause.
 def test_booking_optional_notes(api_client, event_type, unique_time):
     resp = api_client.post("/api/bookings", json={
         "eventTypeId": event_type["id"],
@@ -93,6 +97,8 @@ def test_booking_optional_notes(api_client, event_type, unique_time):
     assert resp.json()["eventTypeName"] == event_type["name"]
 
 
+# TODO: fix - fails with 409 on second test run without backend restart.
+# See test_availability_edge.py for root cause.
 def test_booking_response_shape(api_client, event_type, unique_time):
     resp = api_client.post("/api/bookings", json={
         "eventTypeId": event_type["id"],

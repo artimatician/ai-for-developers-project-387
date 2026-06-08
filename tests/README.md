@@ -10,6 +10,51 @@ pip install -r tests/requirements.txt
 
 Playwright browsers are optional — API tests don't need them, and browser tests are automatically skipped when no browser is found.
 
+### Playwright browser system dependencies
+
+Browser tests require Playwright's bundled Chromium. After installing the Python package, download it:
+
+```bash
+python3 -m playwright install chromium
+```
+
+On a minimal system (Docker, CI, etc.) Chromium may fail to start due to missing shared libraries. Install them with:
+
+```bash
+# Ubuntu / Debian
+sudo apt-get install -y \
+  libcups2t64 \
+  libglib2.0-0t64 \
+  libatk1.0-0t64 \
+  libatk-bridge2.0-0t64 \
+  libdbus-1-3 \
+  libxcb1 \
+  libxkbcommon0 \
+  libasound2t64 \
+  libgbm1 \
+  libx11-6 \
+  libxext6 \
+  libcairo2 \
+  libpango-1.0-0 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxfixes3 \
+  libxrandr2 \
+  libatspi2.0-0t64 \
+  libgtk-3-0t64
+```
+
+> The `t64` suffix is used on Ubuntu 24.10+ for the 64-bit time_t transition.
+> On older releases drop the suffix (e.g. `libglib2.0-0` instead of `libglib2.0-0t64`).
+
+After installing the libraries, verify Chromium runs:
+
+```bash
+python3 -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()"
+```
+
+The `_playwright_browser_available()` check in `conftest.py` verifies the executable exists and auto-skips browser tests if it is absent.
+
 ## Quick Start
 
 ```bash

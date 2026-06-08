@@ -53,6 +53,8 @@ def test_field_length_limit(api_client):
     assert resp.json()["code"] == "INVALID_INPUT"
 
 
+# TODO: fix - fails with 409 on second test run without backend restart.
+# See test_availability_edge.py for root cause.
 def test_booking_snapshot_semantics(api_client, event_type, unique_time):
     start_time = unique_time()
     resp = api_client.post("/api/bookings", json={

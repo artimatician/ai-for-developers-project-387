@@ -30,6 +30,13 @@ def test_inactive_event_type_returns_404_on_slots(api_client, event_type):
     assert resp.status_code == 404
 
 
+# TODO: fix - fails with 409 on second run without backend restart.
+# Root cause: _unique_time_counter global resets on pytest restart, but
+# SQLite :memory: DB doesn't. Previous run's bookings at day+2,14:00+ are
+# still in the DB, so unique_time() generates an already-booked slot.
+# Fix ideas: restart backend between runs, or make unique_time time-aware
+# (use microseconds since epoch instead of a plain counter), or clean the
+# DB before each test module.
 def test_cross_event_type_conflict(api_client, event_type, second_event_type, unique_time):
     t = unique_time()
 
