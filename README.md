@@ -79,3 +79,6 @@ cd frontend && npm run dev
 | GET | `/api/owner/bookings` | Owner — list bookings |
 | GET/POST | `/api/owner/blackouts` | Owner — list/create blackouts |
 | DELETE | `/api/owner/blackouts/{id}` | Owner — delete blackout |
+
+### Hexlet tests and linter status:
+[![Actions Status](https://github.com/artimatician/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/artimatician/ai-for-developers-project-386/actions)
