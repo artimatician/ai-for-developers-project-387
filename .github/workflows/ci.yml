@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache spec node_modules
+        uses: actions/cache@v4
+        with:
+          path: spec/node_modules
+          key: ${{ runner.os }}-spec-node-${{ hashFiles('spec/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-spec-node-
+
+      - name: Cache frontend node_modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-node-
+
+      - name: Spec validation
+        run: |
+          cd spec
+          npm ci
+          npm test
+
+      - name: Backend tests
+        run: |
+          pip install -r backend/requirements.txt
+          python backend/manage.py test
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: E2E API tests
+        run: ./tests/run-tests.sh -m "not browser"
