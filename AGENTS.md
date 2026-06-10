@@ -106,3 +106,16 @@ Main specs live at `openspec/specs/<capability>/spec.md`. Active changes at
 `npm test` in `spec/` compiles `.tsp` → OpenAPI YAML and asserts:
 - 13 operations with exact `operationId` values (e.g. `Owner_listEventTypes`)
 - 11 schemas, 5 path params, 3 POST endpoints
+
+## Code exploration
+
+- **Discovery** → `semble_search` (then Read the file to verify
+  the exact line — semantic search can miss literal-named symbols).
+- **Analysis once paths are known** → `ctx_execute` / `ctx_batch_execute` to
+  count, aggregate, or trace across many files without pulling raw bytes into
+  context.
+- **Session memory** → `ctx_search` for prior decisions/plans only.
+
+`ctx_search` does NOT search the codebase — it searches previously captured
+command output. Never use it to answer "does this pattern exist in the repo?";
+it returns false negatives. Use Semble or grep for that.
