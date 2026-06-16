@@ -219,7 +219,7 @@ model Blackout {
   reason?: string;
   @doc("Creation timestamp (ISO 8601, UTC)")
   createdAt: utcDateTime;
-}
+
 
 @doc("Payload to create a blackout period")
 @example(#{
