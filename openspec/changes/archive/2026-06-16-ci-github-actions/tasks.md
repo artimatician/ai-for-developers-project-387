@@ -9,6 +9,6 @@
 
 ## 2. Verify (manual — requires push to GitHub)
 
-- [ ] 2.1 Push to a branch and confirm the workflow triggers and passes all three phases
-- [ ] 2.2 Introduce a deliberate spec error and confirm CI fails on the spec validation phase
+- [x] 2.1 Push to a branch and confirm the workflow triggers and passes all three phases
+- [x] 2.2 Introduce a deliberate spec error and confirm CI fails on the spec validation phase
 - [x] 2.3 Confirm the workflow file has valid YAML syntax
