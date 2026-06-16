@@ -4,7 +4,10 @@ Project structure: **TypeSpec API spec** (done), **Next.js frontend** (done), **
 
 ## Commands
 
+> Most commands also have `make` shortcuts (see [Makefile](#makefile) below).
+
 ```sh
+make doctor                                            # check prerequisites before setting up
 cd spec && npm install && npm test                    # compile TypeSpec + run 32 validation checks
 cd backend && python3 manage.py test                  # run 54 backend tests
 ./start.sh                                            # start backend (4010) + frontend (3000)
@@ -106,3 +109,23 @@ Main specs live at `openspec/specs/<capability>/spec.md`. Active changes at
 `npm test` in `spec/` compiles `.tsp` → OpenAPI YAML and asserts:
 - 13 operations with exact `operationId` values (e.g. `Owner_listEventTypes`)
 - 11 schemas, 5 path params, 3 POST endpoints
+
+## Makefile
+
+A root `Makefile` provides shortcuts for common operations. Run `make help` to see all targets.
+
+| Target | Description |
+|--------|-------------|
+| `help` | List all targets with descriptions |
+| `install` | Install all dependencies (spec, frontend, backend, tests) |
+| `dev` | Start backend + frontend dev servers |
+| `test` | Run all test suites sequentially |
+| `test-spec` | Run spec validation |
+| `test-backend` | Run backend tests |
+| `test-e2e` | Run E2E API-only tests |
+| `test-e2e-browser` | Run E2E browser tests |
+| `build` | Frontend production build |
+| `build-spec` | Compile TypeSpec to OpenAPI YAML |
+| `gen-types` | Regenerate TypeScript types from OpenAPI spec |
+| `check` | Run all tests + build (CI equivalent) |
+| `doctor` | Check system prerequisites and project deps |
