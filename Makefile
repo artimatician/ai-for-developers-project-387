@@ -2,11 +2,11 @@
 
 .PHONY: help install dev test test-spec test-backend test-e2e test-e2e-browser build build-spec gen-types check doctor install-hooks
 
-help:  ## @description List all targets with descriptions
-	@printf '\033[33mUsage:\033[0m\n'
-	@printf '  make \033[36m<target>\033[0m\n\n'
-	@printf '\033[33mTargets:\033[0m\n'
-	@grep -E '^[a-zA-Z0-9_-]+:.*## @description' $(MAKEFILE_LIST) | awk -F ':.*## @description ' '{printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+help: ## @description List all targets with descriptions
+	@printf 'Usage:\n'
+	@printf '  make <target>\n\n'
+	@printf 'Targets:\n'
+	@grep -E '^[a-zA-Z0-9-]+:.*## @description' $(MAKEFILELIST) | awk -F ':.*## @description ' '{printf "  %-20s %s\n", 1, 2}'
 
 install:  ## @description Install all dependencies (spec, frontend, backend, tests)
 	cd spec && npm ci && cd ../frontend && npm ci && cd ../backend && pip install -r requirements.txt && cd ../tests && pip install -r requirements.txt
