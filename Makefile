@@ -20,8 +20,8 @@ test-spec:  ## @description Run spec validation
 test-backend:  ## @description Run backend tests
 	cd backend && python3 manage.py test
 
-test-e2e:  ## @description Run E2E API-only tests
-	python3 -m pytest tests/ -v -m "not browser"
+test-e2e:  ## @description Run E2E API-only tests (auto-starts backend)
+	./tests/run-e2e-api.sh
 
 test-e2e-browser:  ## @description Run E2E browser tests
 	python3 -m pytest tests/ -v -m browser
