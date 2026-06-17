@@ -59,8 +59,11 @@ The `_playwright_browser_available()` check in `conftest.py` verifies the execut
 ## Quick Start
 
 ```bash
-# Orchestrated: starts backend + frontend, runs tests, cleans up
+# Orchestrated (full suite): starts backend + frontend, runs all tests, cleans up
 ./tests/run-tests.sh
+
+# API-only: starts backend, runs 40 API tests, cleans up
+./tests/run-e2e-api.sh
 ```
 
 Or step by step:
@@ -88,7 +91,8 @@ python3 -m pytest tests/ -v --tb=short -m browser
 tests/
   pytest.ini               — pytest config (excludes backend/ from collection)
   requirements.txt          — Python dependencies
-  run-tests.sh              — orchestration script
+  run-tests.sh              — full E2E orchestration (backend + frontend + all tests)
+  run-e2e-api.sh            — API-only orchestration (auto-starts backend, runs API tests)
   .gitignore                — excludes __pycache__/ and .pytest_cache/
   conftest.py               — fixtures: api_client, event_type, second_event_type,
                               unique_time, future_slot; browser detection
@@ -109,7 +113,7 @@ tests/
 
 | Type | Mark | Count | Requires |
 |------|------|-------|----------|
-| API | (none) | 40 | Backend on :4010 |
+| API | (none) | 40 | Backend on :4010 (auto-started by `run-e2e-api.sh` or `run-tests.sh`) |
 | Browser | `@pytest.mark.browser` | 5 | Backend + Frontend + Playwright browsers |
 
 ## Total: 45 tests (40 API + 5 browser)

@@ -122,7 +122,7 @@ A root `Makefile` provides shortcuts for common operations. Run `make help` to s
 | `test` | Run all test suites sequentially |
 | `test-spec` | Run spec validation |
 | `test-backend` | Run backend tests |
-| `test-e2e` | Run E2E API-only tests |
+| `test-e2e` | Run E2E API-only tests (auto-starts backend) |
 | `test-e2e-browser` | Run E2E browser tests |
 | `build` | Frontend production build |
 | `build-spec` | Compile TypeSpec to OpenAPI YAML |
