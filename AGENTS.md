@@ -1,6 +1,6 @@
 # Calendar (Schedule a Call)
 
-Project structure: **TypeSpec API spec** (done), **Next.js frontend** (done), **Django backend** (done).
+Project structure: **TypeSpec API spec**, **Next.js frontend**, **Django backend**.
 
 ## Commands
 
