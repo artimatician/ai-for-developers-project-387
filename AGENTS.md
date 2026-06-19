@@ -8,6 +8,7 @@ Project structure: **TypeSpec API spec** (done), **Next.js frontend** (done), **
 
 ```sh
 make doctor                                            # check prerequisites before setting up
+make install-hooks                                     # install git commit-msg hook (Conventional Commits)
 cd spec && npm install && npm test                    # compile TypeSpec + run 32 validation checks
 cd backend && python3 manage.py test                  # run 54 backend tests
 ./start.sh                                            # start backend (4010) + frontend (3000)
@@ -43,6 +44,22 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (5 to
 - 30-min fixed slot duration, 09:00–18:00 operating hours (per-event-type timezone)
 - No auth, no guest cancellation, no hard DELETE on event types (soft-delete via `isActive`)
 - Generated build artifacts: `spec/tsp-output/` (gitignored), `frontend/.next/` (gitignored)
+
+## Commit convention
+
+All commits must follow **Conventional Commits** format:
+
+```
+<type>: <description>
+
+[optional body]
+```
+
+**Types**: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `perf`, `test`, `ci`, `build`.
+
+**Examples**: `feat: add dark mode`, `fix: handle empty slot list`, `chore: bump dayjs to 1.11`.
+
+Validated locally via git hook (`make install-hooks`) and in CI on every push/PR.
 
 ## Frontend conventions
 
@@ -129,3 +146,4 @@ A root `Makefile` provides shortcuts for common operations. Run `make help` to s
 | `gen-types` | Regenerate TypeScript types from OpenAPI spec |
 | `check` | Run all tests + build (CI equivalent) |
 | `doctor` | Check system prerequisites and project deps |
+| `install-hooks` | Install git commit-msg hook (Conventional Commits) |

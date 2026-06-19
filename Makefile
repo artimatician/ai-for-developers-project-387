@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev test test-spec test-backend test-e2e test-e2e-browser build build-spec gen-types check doctor
+.PHONY: help install dev test test-spec test-backend test-e2e test-e2e-browser build build-spec gen-types check doctor install-hooks
 
 help:  ## @description List all targets with descriptions
 	@printf '\033[33mUsage:\033[0m\n'
@@ -41,3 +41,6 @@ check: test build  ## @description Run all tests + build (CI equivalent)
 
 doctor:  ## @description Check system prerequisites and project deps
 	@bash scripts/doctor.sh
+
+install-hooks:  ## @description Install git commit-msg hook (Conventional Commits)
+	@bash scripts/install-hooks.sh
