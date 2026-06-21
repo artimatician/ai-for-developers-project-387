@@ -9,6 +9,8 @@ Project structure: **TypeSpec API spec** (done), **Next.js frontend** (done), **
 ```sh
 make doctor                                            # check prerequisites before setting up
 make install-hooks                                     # install git commit-msg hook (Conventional Commits)
+make docker-prod                                       # build & run production Docker (port 8080)
+PORT=9090 make docker-prod                             # build & run with custom port
 cd spec && npm install && npm test                    # compile TypeSpec + run 32 validation checks
 cd backend && python3 manage.py test                  # run 54 backend tests
 ./start.sh                                            # start backend (4010) + frontend (3000)
@@ -44,6 +46,7 @@ python3 -m pytest tests/ -v -m browser                # browser tests only (5 to
 - 30-min fixed slot duration, 09:00–18:00 operating hours (per-event-type timezone)
 - No auth, no guest cancellation, no hard DELETE on event types (soft-delete via `isActive`)
 - Generated build artifacts: `spec/tsp-output/` (gitignored), `frontend/.next/` (gitignored)
+- Docker: multi-stage `Dockerfile` with nginx + gunicorn + Next.js behind supervisord; port configured via `PORT` env var (default 8080)
 
 ## Commit convention
 
@@ -147,3 +150,4 @@ A root `Makefile` provides shortcuts for common operations. Run `make help` to s
 | `check` | Run all tests + build (CI equivalent) |
 | `doctor` | Check system prerequisites and project deps |
 | `install-hooks` | Install git commit-msg hook (Conventional Commits) |
+| `docker-prod` | Build and run production Docker image (port via `PORT` var, default 8080) |

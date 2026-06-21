@@ -39,6 +39,8 @@ cd frontend && npm run dev
 | Command | Description |
 |---------|-------------|
 | `./start.sh` | Start backend + frontend (both ports) |
+| `make docker-prod` | Build and run production Docker image (port 8080) |
+| `PORT=9090 make docker-prod` | Build and run with custom port |
 
 ### Backend
 
@@ -65,6 +67,28 @@ cd frontend && npm run dev
 - 30-minute fixed slot duration, 09:00–18:00 operating hours (per-event-type timezone)
 - Slot availability window: next 14 days starting from today
 - Booking and blackout conflicts are global (across all event types)
+
+## Production Docker
+
+The project includes a multi-stage `Dockerfile` for production deployment. The container runs nginx (reverse proxy), gunicorn (Django), and Next.js behind supervisord.
+
+### PORT variable
+
+The container's external port is controlled via the `PORT` environment variable (default `8080`):
+
+```sh
+# Default port 8080
+make docker-prod
+
+# Custom port 9090
+PORT=9090 make docker-prod
+
+# Direct Docker usage
+docker build --target prod --build-arg PORT=9090 -t calendar:prod .
+docker run --rm -p 9090:9090 -e PORT=9090 -v calendar-data:/data -e PRODUCTION_DB=true calendar:prod
+```
+
+The `Makefile` accepts `PORT` as a variable (`PORT ?= 8080`) and passes it through to `docker build` (`--build-arg`) and `docker run` (`-e`, `-p`). See [Docker setup spec](openspec/specs/docker-setup/spec.md) for full details.
 
 ## API Overview
 
