@@ -72,8 +72,8 @@ def create_booking(request):
     serializer = CreateBookingSerializer(data=request.data)
     if not serializer.is_valid():
         errors = serializer.errors
-        first_error = next(iter(errors.values()))
-        return error_response('INVALID_INPUT', str(first_error[0]), 400)
+        first_field = next(iter(errors.keys()))
+        return error_response('INVALID_INPUT', f'{first_field}: {str(errors[first_field][0])}', 400)
 
     data = serializer.validated_data
     event_type_id = data['eventTypeId']
@@ -117,8 +117,8 @@ def event_types_owner(request):
         serializer = CreateEventTypeSerializer(data=request.data)
         if not serializer.is_valid():
             errors = serializer.errors
-            first_error = next(iter(errors.values()))
-            return error_response('INVALID_INPUT', str(first_error[0]), 400)
+            first_field = next(iter(errors.keys()))
+            return error_response('INVALID_INPUT', f'{first_field}: {str(errors[first_field][0])}', 400)
 
         data = serializer.validated_data
         event_type = EventType.objects.create(
@@ -146,8 +146,8 @@ def event_type_detail_owner(request, id):
         serializer = UpdateEventTypeSerializer(data=request.data, partial=True)
         if not serializer.is_valid():
             errors = serializer.errors
-            first_error = next(iter(errors.values()))
-            return error_response('INVALID_INPUT', str(first_error[0]), 400)
+            first_field = next(iter(errors.keys()))
+            return error_response('INVALID_INPUT', f'{first_field}: {str(errors[first_field][0])}', 400)
 
         data = serializer.validated_data
         for field, value in data.items():
@@ -197,8 +197,8 @@ def blackouts_owner(request):
             non_field_errors = errors.get('non_field_errors')
             if non_field_errors:
                 return error_response('INVALID_INPUT', str(non_field_errors[0]), 400)
-            first_error = next(iter(errors.values()))
-            return error_response('INVALID_INPUT', str(first_error[0]), 400)
+            first_field = next(iter(errors.keys()))
+            return error_response('INVALID_INPUT', f'{first_field}: {str(errors[first_field][0])}', 400)
 
         data = serializer.validated_data
         blackout = Blackout.objects.create(
