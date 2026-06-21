@@ -1,44 +1,55 @@
 ## ADDED Requirements
 
 ### Requirement: Multi-stage Dockerfile
-The project SHALL provide a single `Dockerfile` with five named build stages: `base-deps`, `dev`, `build`, `preprod`, and `prod`. The `build` stage SHALL produce the frontend artifacts (`standalone`, `.next/static/`, `public/`) for the `preprod` and `prod` targets.
+The project SHALL provide a single `Dockerfile` with three named build stages: `base-deps`, `build`, and `prod`. The `build` stage SHALL produce the frontend artifacts (`standalone`, `.next/static/`, `public/`) for the `prod` target.
 
 #### Scenario: Dockerfile targets are buildable
-- **WHEN** running `docker build --target <target> -t calendar:<target> .` for each of `dev`, `build`, `preprod`, `prod`
-- **THEN** each build SHALL succeed without errors
+- **WHEN** running `docker build --target prod -t calendar:prod .`
+- **THEN** the build SHALL succeed without errors
 
-### Requirement: Dev target — no nginx, no supervisor, memory database
-The `dev` target SHALL run the Django development server and `next dev` without nginx or supervisord, using the default `:memory:` SQLite database.
+### Requirement: Prod target — nginx + supervisor, file-based database with WAL mode
+The `prod` target SHALL run gunicorn (Django) and `next start` (built frontend) behind an nginx reverse proxy on port 8080, managed by supervisord. It SHALL support a persistent SQLite database at `/data/db.sqlite3` with WAL-mode optimizations, enabled via the `PRODUCTION_DB=true` environment variable.
 
-#### Scenario: Dev starts both servers
-- **WHEN** running the `dev` container with port mappings
-- **THEN** the Django dev server SHALL be available on port 4010 and the Next.js dev server on port 3000
-- **AND** there SHALL be no nginx or supervisord processes running
-
-### Requirement: Preprod target — nginx + supervisor, memory database
-The `preprod` target SHALL run gunicorn (Django) and `next start` (built frontend) behind an nginx reverse proxy on port 8080, managed by supervisord, using the default `:memory:` SQLite database. It SHALL copy the standalone server, `.next/static/`, and `public/` from the `build` stage, and SHALL inherit Python packages and runtime tools from `base-deps` (not install them fresh).
-
-#### Scenario: Preprod serves frontend and API on single port
-- **WHEN** running the `preprod` container with port mapping `8080:8080`
+#### Scenario: Prod serves frontend and API on single port
+- **WHEN** running the `prod` container with port mapping `8080:8080` and `-e PRODUCTION_DB=true`
 - **THEN** `GET /api/health` SHALL return a 200 response from Django
 - **AND** `GET /` SHALL return the Next.js frontend page
 - **AND** supervisord SHALL be managing nginx, gunicorn, and the Next.js process
 
-### Requirement: Prod target — nginx + supervisor, file-based database
-The `prod` target SHALL support a persistent SQLite database via the `DATABASE_URL` environment variable, with a Docker volume mounted at `/data/`. The process management SHALL be identical to preprod.
-
 #### Scenario: Prod persists data across container restarts
-- **WHEN** running the `prod` container with `-e DATABASE_URL=sqlite:///data/db.sqlite3 -v data:/data`
+- **WHEN** running the `prod` container with `-e PRODUCTION_DB=true -v data:/data`
 - **AND** a booking is created
 - **AND** the container is restarted
 - **THEN** the booking SHALL still exist after restart
 
+#### Scenario: Prod uses WAL mode for concurrent reads
+- **WHEN** running the `prod` container with `-e PRODUCTION_DB=true`
+- **AND** inspecting the SQLite database journal mode
+- **THEN** the journal mode SHALL be `wal`
+- **AND** the busy timeout SHALL be 2000ms
+- **AND** the synchronous mode SHALL be `NORMAL`
+
+### Requirement: PRODUCTION_DB env var gates production database
+The `PRODUCTION_DB=true` environment variable SHALL switch the backend from `:memory:` SQLite to a file-based SQLite at `/data/db.sqlite3` with production WAL-mode PRAGMAs. Without this variable, the default `:memory:` database SHALL be used.
+
+#### Scenario: PRODUCTION_DB=true enables persistence
+- **WHEN** running the backend with `PRODUCTION_DB=true`
+- **THEN** the database SHALL be at `/data/db.sqlite3`
+- **AND** the journal mode SHALL be WAL
+- **AND** `SECRET_KEY` SHALL be auto-generated if not explicitly set
+
+#### Scenario: Without PRODUCTION_DB, memory database is used
+- **WHEN** running the backend without `PRODUCTION_DB`
+- **THEN** the database SHALL be the default `:memory:` SQLite
+- **AND** no WAL-mode optimizations SHALL be applied
+
 ### Requirement: docker-entrypoint runs database sync
-The container entrypoint SHALL run `python manage.py migrate --run-syncdb` before starting any services, ensuring the database schema is up to date.
+The container entrypoint SHALL create the `/data/` directory if it does not exist, run `python manage.py migrate --run-syncdb` before starting any services, and ensure the database schema is up to date.
 
 #### Scenario: Schema is applied on startup
 - **WHEN** the container starts
-- **THEN** `manage.py migrate --run-syncdb` SHALL be executed before supervisord (or dev servers) starts
+- **THEN** `/data/` directory SHALL exist
+- **AND** `manage.py migrate --run-syncdb` SHALL be executed before supervisord starts
 - **AND** all database tables SHALL exist
 
 ### Requirement: Nginx reverse proxy configuration
@@ -75,9 +86,10 @@ The `.dockerignore` file SHALL exclude `node_modules`, `__pycache__`, `.next`, `
 - **WHEN** building any Docker target
 - **THEN** the build context SHALL NOT contain `node_modules`, `__pycache__`, `.next`, or `.git` directories
 
-### Requirement: Makefile Docker targets
-The root `Makefile` SHALL provide `docker-dev`, `docker-preprod`, and `docker-prod` targets to build and run the corresponding Docker images.
+### Requirement: Makefile Docker target
+The root `Makefile` SHALL provide a `docker-prod` target to build and run the production Docker image with the `PRODUCTION_DB=true` environment variable and a persistent volume mount at `/data/`.
 
-#### Scenario: Make docker-dev builds and runs
-- **WHEN** running `make docker-dev`
-- **THEN** the `dev` target SHALL be built and the container SHALL start with appropriate volume mounts and port mappings
+#### Scenario: Make docker-prod builds and runs
+- **WHEN** running `make docker-prod`
+- **THEN** the `prod` target SHALL be built
+- **AND** the container SHALL start with `-e PRODUCTION_DB=true` and a volume mount
