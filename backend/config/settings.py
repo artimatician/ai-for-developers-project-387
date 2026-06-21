@@ -1,4 +1,5 @@
 import os
+import secrets
 import dj_database_url
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-only-insecure-key')
@@ -20,17 +21,33 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
-else:
+PRODUCTION_DB = os.environ.get('PRODUCTION_DB', '').lower() in ('true', '1', 'yes')
+
+if PRODUCTION_DB:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'file:memory?mode=memory&cache=shared',
-            'OPTIONS': {'uri': True},
+            'NAME': '/data/db.sqlite3',
+            'OPTIONS': {
+                'timeout': 2,
+                'init_command': 'PRAGMA journal_mode=WAL',
+            },
         }
     }
+    if not os.environ.get('SECRET_KEY'):
+        SECRET_KEY = secrets.token_urlsafe(50)
+else:
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    if DATABASE_URL:
+        DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': 'file:memory?mode=memory&cache=shared',
+                'OPTIONS': {'uri': True},
+            }
+        }
 
 CORS_ALLOW_ALL_ORIGINS = True
 
