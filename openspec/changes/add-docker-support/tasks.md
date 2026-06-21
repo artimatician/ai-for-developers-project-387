@@ -24,4 +24,4 @@
 
 ## 6. Verification
 
-- [ ] 6.1 Verify `make docker-prod` with persistence — nginx on 8080; `curl localhost:8080/api/health` returns `{"status":"ok"}`; `curl localhost:8080/` returns frontend HTML; `curl -sI localhost:8080/_next/static/` returns 200 with `Cache-Control: public, immutable`; create a booking via API (`POST /api/bookings`), restart container, `GET /api/owner/bookings` returns the booking; without volume mount, data is lost on restart
+- [x] 6.1 Verify `make docker-prod` with persistence — nginx on 8080; `curl localhost:8080/api/health` returns `{"status":"ok"}`; `curl localhost:8080/` returns frontend HTML; `curl -sI localhost:8080/_next/static/chunks/<name>.js` returns 200 with `Cache-Control: public, immutable`; create a booking via API (`POST /api/bookings`), restart container, `GET /api/owner/bookings` returns the booking; without volume mount, data is lost on restart
