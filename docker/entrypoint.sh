@@ -4,6 +4,9 @@ set -e
 mkdir -p /data
 cd /app/backend
 
+PORT="${PORT:-8080}"
+sed -i "s/__PORT__/$PORT/g" /etc/nginx/sites-enabled/default
+
 python manage.py migrate --run-syncdb
 
 if [ -f /data/db.sqlite3 ]; then

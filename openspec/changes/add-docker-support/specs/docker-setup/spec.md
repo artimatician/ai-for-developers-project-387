@@ -79,6 +79,19 @@ All proxy locations SHALL set appropriate headers (`Host`, `X-Real-IP`, `X-Forwa
 - **THEN** nginx SHALL forward the request to `http://localhost:3000/`
 - **AND** the response SHALL be from the Next.js server
 
+### Requirement: PORT environment variable configures nginx listen port
+The container SHALL read the `PORT` environment variable (default 8080) and configure nginx to listen on that port. The entrypoint SHALL replace the `__PORT__` placeholder in nginx.conf before starting supervisord.
+
+#### Scenario: Default port is 8080
+- **WHEN** running the container without setting `PORT`
+- **THEN** nginx SHALL listen on port 8080
+- **AND** the container SHALL be reachable on port 8080
+
+#### Scenario: Custom PORT overrides nginx listen port
+- **WHEN** running the container with `-e PORT=9090 -p 9090:9090`
+- **THEN** nginx SHALL listen on port 9090
+- **AND** `GET http://localhost:9090/api/health` SHALL return a 200 response
+
 ### Requirement: .dockerignore excludes build artifacts
 The `.dockerignore` file SHALL exclude `node_modules`, `__pycache__`, `.next`, `*.sqlite3`, `.git`, and other build artifacts from the Docker build context.
 

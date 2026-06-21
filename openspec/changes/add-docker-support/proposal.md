@@ -8,6 +8,7 @@ The app currently requires manual dependency setup (system Python, Node.js, pip 
 - `.dockerignore` to exclude build artifacts from the Docker context
 - Infrastructure configs: nginx reverse proxy, supervisord process manager, docker entrypoint script
 - `backend/config/settings.py`: add `PRODUCTION_DB=true` env var support — enables file-based SQLite at `/data/db.sqlite3` with WAL-mode optimizations; `SECRET_KEY` auto-generated if unset
+- Container reads `PORT` env var (default 8080) — nginx listen port configured via placeholder replaced at container startup by entrypoint
 - `Makefile` target: `docker-prod`
 - No API changes, no behavioral changes to existing features
 
@@ -22,6 +23,6 @@ The app currently requires manual dependency setup (system Python, Node.js, pip 
 ## Impact
 
 - **Files added**: `Dockerfile`, `.dockerignore`, `docker/nginx.conf`, `docker/supervisord.conf`, `docker/entrypoint.sh`
-- **Files modified**: `backend/config/settings.py`, `Makefile`
+- **Files modified**: `backend/config/settings.py`, `Makefile`, `docker/nginx.conf`, `docker/entrypoint.sh`, `Dockerfile`
 - **Dependencies added**: nginx (runtime), supervisor (runtime) — in Docker image only, not host
 - **No API, schema, or frontend changes**

@@ -23,6 +23,9 @@ RUN mkdir -p /app/out && \
 
 FROM base-deps AS prod
 
+ARG PORT=8080
+ENV PORT=$PORT
+
 COPY --from=build /app/out/ /app/
 COPY --from=build /app/backend /app/backend
 COPY docker/nginx.conf /etc/nginx/sites-enabled/default
@@ -31,5 +34,5 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /app/backend
-EXPOSE 8080
+EXPOSE $PORT
 ENTRYPOINT ["/entrypoint.sh"]

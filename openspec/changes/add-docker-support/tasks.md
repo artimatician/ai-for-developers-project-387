@@ -22,6 +22,14 @@
 
 - [x] 5.1 Add `docker-prod` — build `prod` target, run with port `8080:8080`, volume `calendar-data:/data`, env `PRODUCTION_DB=true`
 
+## 7. PORT environment variable support
+
+- [x] 7.1 Modify `docker/nginx.conf` — replace `listen 8080` with `listen __PORT__` placeholder
+- [x] 7.2 Modify `docker/entrypoint.sh` — read `${PORT:-8080}`, `sed`-replace `__PORT__` in nginx.conf before starting supervisord
+- [x] 7.3 Modify `Dockerfile` — add `ARG PORT=8080`, `ENV PORT=$PORT`, change `EXPOSE 8080` to `EXPOSE $PORT`
+- [x] 7.4 Modify `Makefile` — add `PORT ?= 8080`, pass `--build-arg PORT=$(PORT)` to docker build, pass `-e PORT=$(PORT)` and `-p $(PORT):$(PORT)` to docker run
+- [x] 7.5 Verify PORT override works — build with `PORT=9090`, confirm container is reachable on port 9090 and `GET /api/health` returns 200
+
 ## 6. Verification
 
 - [x] 6.1 Verify `make docker-prod` with persistence — nginx on 8080; `curl localhost:8080/api/health` returns `{"status":"ok"}`; `curl localhost:8080/` returns frontend HTML; `curl -sI localhost:8080/_next/static/chunks/<name>.js` returns 200 with `Cache-Control: public, immutable`; create a booking via API (`POST /api/bookings`), restart container, `GET /api/owner/bookings` returns the booking; without volume mount, data is lost on restart

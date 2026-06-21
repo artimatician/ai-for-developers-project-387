@@ -10,7 +10,8 @@ The backend (`backend/config/settings.py`) currently defaults to SQLite `:memory
 - Single `Dockerfile` with 3 stages (`base-deps`, `build`, `prod`)
 - `build` stage produces the frontend standalone output, `.next/static/`, and `public/` artifacts
 - `PRODUCTION_DB=true` env var switches from `:memory:` to file-based SQLite at `/data/db.sqlite3` with WAL-mode PRAGMA optimizations
-- nginx reverse proxy serves frontend + API on single port (8080)
+- nginx reverse proxy serves frontend + API on a single port
+- Container reads `PORT` env var (default 8080) to determine which port nginx listens on
 - `/_next/static/` served directly by nginx with aggressive caching
 - `/api/health` special-cased to match Django's `/health` endpoint
 - supervisord manages nginx, gunicorn (Django), and `next start` processes
@@ -43,8 +44,8 @@ base-deps
 ### Base image: python:3.11-slim + Node 20 from nodesource
 **Why**: `python:3.11-slim` is a minimal Debian base with Python 3.11 pre-installed. Node 20 is installed via the official NodeSource Debian repo. This avoids needing a separate Node base image while keeping the image slim.
 
-### Nginx reverse proxy on port 8080
-**Why**: Single port simplifies deployment. Nginx is lightweight, well-understood, and configured with a simple static config file. Four location blocks:
+### Nginx reverse proxy on configurable port via PORT env var
+**Why**: Single port simplifies deployment. Nginx is lightweight, well-understood, and configured with a simple config file using a `__PORT__` placeholder replaced at startup. Four location blocks:
 
 1. **`= /api/health`** — exact match, proxies to `http://localhost:4010/health` (prefix-stripped). Django serves health at `/health`, not `/api/health`, so nginx rewrites the path.
 2. **`/_next/static/`** — served directly from disk at `/app/.next/static/` with `expires 365d` and `Cache-Control: public, immutable`. Bypasses Next.js server for optimal performance.
@@ -71,6 +72,17 @@ The `DATABASE_URL` fallback via `dj-database-url` is retained for non-Docker sce
 | `cache_size` | -8000 | 8 MB page cache (negative value = kilobytes). Adequate for this data volume (three small tables with UUID PKs). |
 
 Using `init_command` means these run on every new connection (idempotent — once WAL mode is set at the file level, the PRAGMA is a no-op). The `timeout=2` option maps directly to SQLite's `busy_timeout`.
+
+### PORT env var configures nginx listen port
+**Why**: Port flexibility is important in deployments where 8080 is already in use (e.g., multiple services on same host, constrained cloud environments). A `PORT` environment variable (standard container convention) lets users choose the container's external port without modifying configuration files.
+
+**How**: nginx does not support environment variables in `listen` or `server` directives, so a `sed`-based templating approach is used:
+- `nginx.conf` uses a distinct `__PORT__` placeholder: `listen __PORT__;`
+- `entrypoint.sh` reads `${PORT:-8080}` and replaces the placeholder before starting supervisord: `sed -i "s/__PORT__/$PORT/g" /etc/nginx/sites-enabled/default`
+- `Dockerfile` sets `ENV PORT=8080` and `EXPOSE $PORT` (using `ARG PORT=8080` since `EXPOSE` does not support `ENV` directly)
+- `Makefile` uses `PORT ?= 8080` and passes `--build-arg PORT=$(PORT)` to `docker build`, `-e PORT=$(PORT) -p $(PORT):$(PORT)` to `docker run`
+
+A distinct `__PORT__` placeholder was chosen over `envsubst` to avoid accidentally substituting `$VAR` references in `proxy_pass` or other nginx directives.
 
 ### SECRET_KEY auto-generation in production
 **Why**: The app doesn't use sessions, CSRF, auth, or any cryptographic signing features (see `settings.py`: empty `DEFAULT_AUTHENTICATION_CLASSES`, no `SessionMiddleware`, no `CsrfViewMiddleware`). SECRET_KEY is unused at runtime. When `PRODUCTION_DB=true`, a random 50-character key is generated via `secrets.token_urlsafe(50)` if `SECRET_KEY` is not explicitly set. This avoids linter warnings about hardcoded keys while keeping the env var optional.
@@ -100,7 +112,7 @@ Using `init_command` means these run on every new connection (idempotent — onc
 - Django runs from `/app/backend/` (WORKDIR)
 - Next.js standalone runs from `/app/` (server.js at root)
 - nginx serves `/_next/static/*` from `/app/.next/static/`
-- Everything runs behind nginx on port 8080
+- Everything runs behind nginx on the port specified by the `PORT` env var (default 8080)
 
 ### Request routing flows
 
@@ -116,9 +128,10 @@ Two distinct request paths exist, depending on origin:
 
 The `docker/entrypoint.sh` script:
 1. Creates `/data/` directory (important for first run — the Docker volume has no pre-created path)
-2. Sets `API_URL="${API_URL:-http://localhost:4010}"`
-3. Runs `python manage.py migrate --run-syncdb` from `/app/backend`
-4. Exec supervisord
+2. Reads `${PORT:-8080}` and replaces the `__PORT__` placeholder in nginx.conf via `sed`
+3. Sets `API_URL="${API_URL:-http://localhost:4010}"`
+4. Runs `python manage.py migrate --run-syncdb` from `/app/backend`
+5. Exec supervisord
 
 ## Risks / Trade-offs
 
