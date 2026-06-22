@@ -1,6 +1,8 @@
+PORT ?= 8080
+
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev test test-spec test-backend test-e2e test-e2e-browser build build-spec gen-types check doctor install-hooks
+.PHONY: help install dev test test-spec test-backend test-e2e test-e2e-browser build build-spec gen-types check doctor docker-prod install-hooks
 
 help: ## @description List all targets with descriptions
 	@printf 'Usage:\n'
@@ -41,6 +43,9 @@ check: test build  ## @description Run all tests + build (CI equivalent)
 
 doctor:  ## @description Check system prerequisites and project deps
 	@bash scripts/doctor.sh
+
+docker-prod:  ## @description Build and run production Docker image
+	docker build --target prod --build-arg PORT=$(PORT) -t calendar:prod . && docker run --rm -p $(PORT):$(PORT) -v calendar-data:/data -e PRODUCTION_DB=true -e PORT=$(PORT) calendar:prod
 
 install-hooks:  ## @description Install git commit-msg hook (Conventional Commits)
 	@bash scripts/install-hooks.sh
