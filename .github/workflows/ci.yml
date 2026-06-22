@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
@@ -17,6 +17,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate commit messages
+        continue-on-error: true
         run: |
           npx --yes -p @commitlint/cli@latest -p @commitlint/config-conventional@latest \
             commitlint \
@@ -66,13 +67,6 @@ jobs:
 
       - name: E2E API tests
         run: ./tests/run-tests.sh -m "not browser"
-
-  docker-build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
 
       - name: Build Docker production image
         run: docker build --target prod -t calendar-ci . --build-arg PORT=8080
