@@ -8,7 +8,7 @@ help: ## @description List all targets with descriptions
 	@printf 'Usage:\n'
 	@printf '  make <target>\n\n'
 	@printf 'Targets:\n'
-	@grep -E '^[a-zA-Z0-9-]+:.*## @description' $(MAKEFILELIST) | awk -F ':.*## @description ' '{printf "  %-20s %s\n", 1, 2}'
+	@grep -E '^[a-zA-Z0-9-]+:.*## @description' $(MAKEFILE_LIST) | awk -F ':.*## @description ' '{printf "  %-20s %s\n", $$1, $$2}'
 
 install:  ## @description Install all dependencies (spec, frontend, backend, tests)
 	cd spec && npm ci && cd ../frontend && npm ci && cd ../backend && pip install -r requirements.txt && cd ../tests && pip install -r requirements.txt
