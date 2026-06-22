@@ -172,7 +172,7 @@ export function OwnerEventTypesClient({ eventTypes: initial }: OwnerEventTypesCl
               {...form.getInputProps('timezone')}
             />
             <NumberInput
-              label="Duration (minutes)"
+              label="Maximum duration (minutes)"
               description="Maximum booking duration (15–480 min, 15-min increments)"
               min={15}
               max={480}

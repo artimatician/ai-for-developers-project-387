@@ -89,6 +89,9 @@ export function SchedulingPage({ eventType, slots: initialSlots, initialDate }: 
         </div>
         <div style={{ flex: 1, minWidth: 240, padding: 32, display: 'flex', flexDirection: 'column' }}>
           <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+              Duration
+            </div>
             <DurationPicker
               value={duration}
               maxDuration={eventType.duration ?? 30}
