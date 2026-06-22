@@ -11,7 +11,7 @@ class EventTypeSerializer(serializers.ModelSerializer):
 
 class CreateEventTypeSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=1000)
-    description = serializers.CharField(max_length=1000)
+    description = serializers.CharField(max_length=1000, allow_blank=True, required=False)
     timezone = serializers.CharField(max_length=100, default='UTC', required=False)
     duration = serializers.IntegerField(default=30, required=False)
 
@@ -33,7 +33,7 @@ class CreateEventTypeSerializer(serializers.Serializer):
 
 class UpdateEventTypeSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=1000, required=False)
-    description = serializers.CharField(max_length=1000, required=False)
+    description = serializers.CharField(max_length=1000, allow_blank=True, required=False)
     timezone = serializers.CharField(max_length=100, required=False)
     duration = serializers.IntegerField(required=False)
     isActive = serializers.BooleanField(required=False)
