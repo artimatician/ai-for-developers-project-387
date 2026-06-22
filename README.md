@@ -1,108 +1,62 @@
 # Schedule a Call
 
-A simplified appointment scheduling service. The calendar owner publishes event types; guests browse, pick a time slot, and book — no account required.
+A simplified appointment scheduling service. The calendar owner publishes event
+types with custom durations; guests browse, pick a time slot, and book — no
+account required.
+
+## How it works
+
+1. Owner creates event types (30-min default, 15-min granularity) and sets
+   blackouts to block availability
+2. Guests see open slots in the owner's timezone — no login needed
+3. Booking is instant; conflicts are prevented globally across all event types
 
 ## Quick Start
 
 ```bash
-./start.sh
+make dev     # Django :4010 · Next.js :3000
 ```
 
-This starts both servers with a single command:
-1. Django backend on port **4010**
-2. Next.js frontend on port **3000**
-
-Open [http://localhost:3000](http://localhost:3000) to use the app. Press `Ctrl+C` to stop both servers.
-
-## Project Structure
-
-| Directory | Purpose |
-|-----------|---------|
-| `backend/` | Django REST API |
-| `frontend/` | Next.js 16 + Mantine 7 web app |
-| `spec/` | TypeSpec API specification |
-
-## Running Servers Separately
+## Production
 
 ```bash
-# Terminal 1 — Backend
-cd backend && bash run.sh
-
-# Terminal 2 — Frontend
-cd frontend && npm run dev
+make docker-prod                         # default port 8080
+PORT=9090 make docker-prod               # custom port
 ```
+
+Uses file-backed SQLite (`/data/db.sqlite3`) via `PRODUCTION_DB=true`.
 
 ## Commands
 
-### Root
+- `make dev` — Start dev servers
+- `make test` — Spec validation → backend tests → E2E API tests
+- `make docker-prod` — Build & run production Docker
+- `make build` — Frontend production build
+- `make gen-types` — Regenerate TS types from OpenAPI spec
 
-| Command | Description |
-|---------|-------------|
-| `./start.sh` | Start backend + frontend (both ports) |
-| `make docker-prod` | Build and run production Docker image (port 8080) |
-| `PORT=9090 make docker-prod` | Build and run with custom port |
+## Project Structure
 
-### Backend
-
-| Command | Description |
-|---------|-------------|
-| `cd backend && bash run.sh` | Start Django API on port 4010 |
-| `cd backend && python3 manage.py test` | Run 54 backend tests |
-
-### Frontend
-
-| Command | Description |
-|---------|-------------|
-| `cd frontend && npm run dev` | Start Next.js dev server on port 3000 |
-| `cd frontend && npm run build` | Production build |
-| `cd frontend && ./start-mock.sh` | Mock API (Prism) + Next.js |
-| `cd frontend && npm run build:spec` | Compile TypeSpec → OpenAPI YAML |
-| `cd frontend && npm run gen:types` | Regenerate TypeScript types |
-| `cd spec && npm test` | Validate OpenAPI spec |
+- `backend/` — Django REST API (SQLite: `:memory:` dev, file in prod)
+- `frontend/` — Next.js 16 + Mantine 7
+- `spec/` — TypeSpec → OpenAPI API specification
+- `tests/` — 40 API tests (pytest) + 5 browser tests (Playwright)
+- `openspec/` — Behavioral specs and change proposals
 
 ## Architecture
 
-- The backend uses SQLite `:memory:` — data resets on every restart
-- No auth, no registration, no guest cancellation
-- 30-minute fixed slot duration, 09:00–18:00 operating hours (per-event-type timezone)
-- Slot availability window: next 14 days starting from today
-- Booking and blackout conflicts are global (across all event types)
+- 15-min slot granularity, 09:00–18:00 operating hours, 14-day window, per-TZ
+- Global conflict model: bookings and blackouts block slots across event types
+- Guest endpoints (`/api/event-types`, `/api/bookings`) and owner endpoints
+  (`/api/owner/*`) — full spec in `spec/`
+- Errors return `{ "code": "...", "message": "..." }`
 
-## Production Docker
+## Demo
 
-The project includes a multi-stage `Dockerfile` for production deployment. The container runs nginx (reverse proxy), gunicorn (Django), and Next.js behind supervisord.
+A live instance is deployed at:
+[https://ai-for-developers-project-386-production-fea5.up.railway.app](https://ai-for-developers-project-386-production-fea5.up.railway.app)
 
-### PORT variable
-
-The container's external port is controlled via the `PORT` environment variable (default `8080`):
-
-```sh
-# Default port 8080
-make docker-prod
-
-# Custom port 9090
-PORT=9090 make docker-prod
-
-# Direct Docker usage
-docker build --target prod --build-arg PORT=9090 -t calendar:prod .
-docker run --rm -p 9090:9090 -e PORT=9090 -v calendar-data:/data -e PRODUCTION_DB=true calendar:prod
-```
-
-The `Makefile` accepts `PORT` as a variable (`PORT ?= 8080`) and passes it through to `docker build` (`--build-arg`) and `docker run` (`-e`, `-p`). See [Docker setup spec](openspec/specs/docker-setup/spec.md) for full details.
-
-## API Overview
-
-| Method | Path | Role |
-|--------|------|------|
-| GET | `/api/event-types` | Guest — list active event types |
-| GET | `/api/event-types/{id}` | Guest — get event type |
-| GET | `/api/event-types/{id}/slots` | Guest — get available slots |
-| POST | `/api/bookings` | Guest — create booking |
-| GET/POST | `/api/owner/event-types` | Owner — list/create event types |
-| GET/PATCH | `/api/owner/event-types/{id}` | Owner — get/update event type |
-| GET | `/api/owner/bookings` | Owner — list bookings |
-| GET/POST | `/api/owner/blackouts` | Owner — list/create blackouts |
-| DELETE | `/api/owner/blackouts/{id}` | Owner — delete blackout |
+---
 
 ### Hexlet tests and linter status:
+
 [![Actions Status](https://github.com/artimatician/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/artimatician/ai-for-developers-project-386/actions)
