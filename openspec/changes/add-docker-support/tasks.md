@@ -30,6 +30,15 @@
 - [x] 7.4 Modify `Makefile` — add `PORT ?= 8080`, pass `--build-arg PORT=$(PORT)` to docker build, pass `-e PORT=$(PORT)` and `-p $(PORT):$(PORT)` to docker run
 - [x] 7.5 Verify PORT override works — build with `PORT=9090`, confirm container is reachable on port 9090 and `GET /api/health` returns 200
 
+## 8. CI Docker Verification
+
+- [x] 8.1 Add `docker-build` job to `.github/workflows/ci.yml` — separate job that runs in parallel with `test` job, uses `ubuntu-latest`, timeout 10 minutes
+- [x] 8.2 Build Docker image — run `docker build --target prod -t calendar-ci . --build-arg PORT=8080`
+- [x] 8.3 Run container for testing — `docker run -d -p 8080:8080 --name calendar-ci -e PRODUCTION_DB=true calendar-ci`
+- [x] 8.4 Verify health endpoint — poll `curl -s http://localhost:8080/api/health` until 200 (max 30s), fail job if timeout
+- [x] 8.5 Verify frontend — `curl -s http://localhost:8080/` returns 200 with `<!DOCTYPE html`
+- [x] 8.6 Cleanup — `docker stop calendar-ci && docker rm calendar-ci` in post-job step, runs even on failure
+
 ## 6. Verification
 
 - [x] 6.1 Verify `make docker-prod` with persistence — nginx on 8080; `curl localhost:8080/api/health` returns `{"status":"ok"}`; `curl localhost:8080/` returns frontend HTML; `curl -sI localhost:8080/_next/static/chunks/<name>.js` returns 200 with `Cache-Control: public, immutable`; create a booking via API (`POST /api/bookings`), restart container, `GET /api/owner/bookings` returns the booking; without volume mount, data is lost on restart

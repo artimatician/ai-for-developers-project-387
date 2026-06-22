@@ -66,3 +66,41 @@ jobs:
 
       - name: E2E API tests
         run: ./tests/run-tests.sh -m "not browser"
+
+  docker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker production image
+        run: docker build --target prod -t calendar-ci . --build-arg PORT=8080
+
+      - name: Run container for testing
+        run: docker run -d -p 8080:8080 --name calendar-ci -e PRODUCTION_DB=true calendar-ci
+
+      - name: Wait for health endpoint
+        run: |
+          timeout=30
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            if curl -s http://localhost:8080/api/health 2>/dev/null | grep -q '"ok"'; then
+              echo "Health check passed"
+              exit 0
+            fi
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          echo "Health check timed out after ${timeout}s"
+          curl -v http://localhost:8080/api/health 2>&1 || true
+          exit 1
+
+      - name: Verify frontend is served
+        run: |
+          html=$(curl -s http://localhost:8080/)
+          echo "$html" | grep -q '<!DOCTYPE html' && echo "Frontend OK" || { echo "Frontend check failed"; exit 1; }
+
+      - name: Cleanup container
+        if: always()
+        run: docker stop calendar-ci 2>/dev/null; docker rm calendar-ci 2>/dev/null
