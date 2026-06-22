@@ -1,10 +1,4 @@
-# Docker Setup
-
-## Purpose
-
-Define the Docker-based production deployment strategy for the Calendar application, enabling a single-command production-like environment with persistent storage, reverse proxy, and process management.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Multi-stage Dockerfile
 The project SHALL provide a single `Dockerfile` with three named build stages: `base-deps`, `build`, and `prod`. The `build` stage SHALL produce the frontend artifacts (`standalone`, `.next/static/`, `public/`) for the `prod` target.
@@ -85,6 +79,19 @@ All proxy locations SHALL set appropriate headers (`Host`, `X-Real-IP`, `X-Forwa
 - **THEN** nginx SHALL forward the request to `http://localhost:3000/`
 - **AND** the response SHALL be from the Next.js server
 
+### Requirement: PORT environment variable configures nginx listen port
+The container SHALL read the `PORT` environment variable (default 8080) and configure nginx to listen on that port. The entrypoint SHALL replace the `__PORT__` placeholder in nginx.conf before starting supervisord.
+
+#### Scenario: Default port is 8080
+- **WHEN** running the container without setting `PORT`
+- **THEN** nginx SHALL listen on port 8080
+- **AND** the container SHALL be reachable on port 8080
+
+#### Scenario: Custom PORT overrides nginx listen port
+- **WHEN** running the container with `-e PORT=9090 -p 9090:9090`
+- **THEN** nginx SHALL listen on port 9090
+- **AND** `GET http://localhost:9090/api/health` SHALL return a 200 response
+
 ### Requirement: .dockerignore excludes build artifacts
 The `.dockerignore` file SHALL exclude `node_modules`, `__pycache__`, `.next`, `*.sqlite3`, `.git`, and other build artifacts from the Docker build context.
 
@@ -99,19 +106,6 @@ The root `Makefile` SHALL provide a `docker-prod` target to build and run the pr
 - **WHEN** running `make docker-prod`
 - **THEN** the `prod` target SHALL be built
 - **AND** the container SHALL start with `-e PRODUCTION_DB=true` and a volume mount
-
-### Requirement: PORT environment variable configures nginx listen port
-The container SHALL read the `PORT` environment variable (default 8080) and configure nginx to listen on that port. The entrypoint SHALL replace the `__PORT__` placeholder in nginx.conf before starting supervisord.
-
-#### Scenario: Default port is 8080
-- **WHEN** running the container without setting `PORT`
-- **THEN** nginx SHALL listen on port 8080
-- **AND** the container SHALL be reachable on port 8080
-
-#### Scenario: Custom PORT overrides nginx listen port
-- **WHEN** running the container with `-e PORT=9090 -p 9090:9090`
-- **THEN** nginx SHALL listen on port 9090
-- **AND** `GET http://localhost:9090/api/health` SHALL return a 200 response
 
 ### Requirement: CI pipeline verifies Docker build and run
 The CI pipeline SHALL include a `docker` job (separate from the `test` job) that builds the production image, runs a container, and verifies the container serves both API and frontend correctly.
