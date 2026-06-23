@@ -53,7 +53,7 @@ Uses file-backed SQLite (`/data/db.sqlite3`) via `PRODUCTION_DB=true`.
 ## Demo
 
 A live instance is deployed at:
-[ai-for-developers-project-387-production-f957.up.railway.app](ai-for-developers-project-387-production-f957.up.railway.app)
+[https://ai-for-developers-project-387-production-f957.up.railway.app](https://ai-for-developers-project-387-production-f957.up.railway.app)
 
 ---
 
