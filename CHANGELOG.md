@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/artimatician/ai-for-developers-project-387/compare/schedule-a-call-v0.2.0...schedule-a-call-v0.3.0) (2026-06-23)
+
+
+### Features
+
+* prevent 502 on container updates ([c371e99](https://github.com/artimatician/ai-for-developers-project-387/commit/c371e99e5ef450ed8beb2896a7e3b5dca81add6a))
+
+
+### Bug Fixes
+
+* add opencode config variable ([9cdbeb6](https://github.com/artimatician/ai-for-developers-project-387/commit/9cdbeb660cf26cbd8a91d2da16160f029fe1311d))
+* add upstream retry logic to nginx for transient 502 errors ([3067cf8](https://github.com/artimatician/ai-for-developers-project-387/commit/3067cf8eb377adefc6b0b48e8280d56acfe91e12))
+* empty `make` output on some terminals ([9507149](https://github.com/artimatician/ai-for-developers-project-387/commit/9507149fdc4f8bd14a407e079292afd8cc518117))
+* increase timeout for opencode workflow to 40 minutes ([3c9705f](https://github.com/artimatician/ai-for-developers-project-387/commit/3c9705fec5bb31bd8f58c111ad5544b58bb77efb))
+
 ## [0.2.0](https://github.com/artimatician/ai-for-developers-project-387/compare/schedule-a-call-v0.1.1...schedule-a-call-v0.2.0) (2026-06-23)
 
 
