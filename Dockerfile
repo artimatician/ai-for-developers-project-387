@@ -31,8 +31,7 @@ COPY --from=build /app/backend /app/backend
 COPY docker/nginx.conf /etc/nginx/sites-enabled/default
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /entrypoint.sh
-COPY docker/wait-for-backend.sh /docker/wait-for-backend.sh
-RUN chmod +x /entrypoint.sh /docker/wait-for-backend.sh
+RUN chmod +x /entrypoint.sh
 
 WORKDIR /app/backend
 EXPOSE $PORT
