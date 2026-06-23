@@ -24,4 +24,5 @@ fi
 
 export API_URL="${API_URL:-http://localhost:4010}"
 
+echo "Starting supervisord..."
 exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
