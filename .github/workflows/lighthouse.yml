@@ -13,6 +13,7 @@ jobs:
       id-token: write
       contents: read
       issues: write
+      actions: write
 
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +48,35 @@ jobs:
             --output-path=./reports/lighthouse-report.json \
             --chrome-flags="--headless --no-sandbox --disable-gpu"
 
+      - name: Check for performance regression
+        id: check-regression
+        run: |
+          LCP=$(jq '.audits["largest-contentful-paint"].numericValue' reports/lighthouse-report.json)
+          CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' reports/lighthouse-report.json)
+          TBT=$(jq '.audits["total-blocking-time"].numericValue' reports/lighthouse-report.json)
+          LCP_BASELINE=6580
+          CLS_BASELINE=0.001
+          TBT_BASELINE=171
+          SCORE=0
+
+          [ "$(echo "$LCP > $LCP_BASELINE * 1.1" | bc -l)" = "1" ] && SCORE=$(echo "$SCORE + 0.5" | bc -l)
+          [ "$(echo "$CLS > $CLS_BASELINE * 1.1" | bc -l)" = "1" ] && SCORE=$(echo "$SCORE + 0.3" | bc -l)
+          [ "$(echo "$TBT > $TBT_BASELINE * 1.1" | bc -l)" = "1" ] && SCORE=$(echo "$SCORE + 0.2" | bc -l)
+
+          REGRESSED="false"
+          [ "$(echo "$SCORE >= 0.5" | bc -l)" = "1" ] && REGRESSED="true"
+
+          echo "regressed=$REGRESSED" >> $GITHUB_OUTPUT
+
       - name: Analyze with OpenCode
+        if: steps.check-regression.outputs.regressed == 'true'
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
           prompt: |
             Read ./reports/lighthouse-report.json.
-            Compare LCP, CLS, INP with the values in
+            Compare LCP, CLS, TBT with the values in
             docs/performance-baseline.md.
             For metrics that degraded by more than 10%,
             briefly identify likely culprits in recent commits and
