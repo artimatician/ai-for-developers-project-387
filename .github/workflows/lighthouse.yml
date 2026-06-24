@@ -44,7 +44,7 @@ jobs:
         run: |
           npx lighthouse http://localhost:8080 \
             --output=json \
-            --output-path=./lighthouse-report.json \
+            --output-path=./reports/lighthouse-report.json \
             --chrome-flags="--headless --no-sandbox --disable-gpu"
 
       - name: Analyze with OpenCode
@@ -53,20 +53,19 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
           prompt: |
-            Read ./lighthouse-report.json.
+            Read ./reports/lighthouse-report.json.
             Compare LCP, CLS, INP with the values in
             docs/performance-baseline.md.
-            Do NOT include or commit lighthouse-report.json in the PR.
             For metrics that degraded by more than 10%,
             briefly identify likely culprits in recent commits and
-            create a concise issue (max ~30 lines) with top 3 recommendations.
+            create a concise issue (max ~35 lines) with top 3 recommendations.
           model: ${{ vars.OPENCODE_MODEL_LIGHTHOUSE_WORKFLOW }}
 
       - name: Upload Lighthouse report
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-report
-          path: lighthouse-report.json
+          path: reports/lighthouse-report.json
           retention-days: 30
 
       - name: Cleanup container

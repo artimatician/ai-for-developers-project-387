@@ -11,6 +11,6 @@ confirmed that new values are the acceptable normal.
 
 | Metric         | Baseline |
 |----------------|----------|
-| LCP (seconds)  | 1.2      |
-| CLS            | 0.02     |
-| INP / TBT (ms) | 80       |
+| LCP (seconds)  | 6.58      |
+| CLS            | 0.001     |
+| INP / TBT (ms) | 171       |

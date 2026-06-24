@@ -38,3 +38,6 @@ Thumbs.db
 
 # Generated build artifacts
 spec/tsp-output/
+
+# lighthouse reports
+reports/
