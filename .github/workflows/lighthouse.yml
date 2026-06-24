@@ -60,7 +60,7 @@ jobs:
             For metrics that degraded by more than 10%,
             briefly identify likely culprits in recent commits and
             create a concise issue (max ~30 lines) with top 3 recommendations.
-          model: ${{ vars.OPENCODE_MODEL }}
+          model: ${{ vars.OPENCODE_MODEL_LIGHTHOUSE_WORKFLOW }}
 
       - name: Upload Lighthouse report
         uses: actions/upload-artifact@v4
