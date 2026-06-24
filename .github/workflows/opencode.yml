@@ -41,4 +41,4 @@ jobs:
               }
             }
         with:
-          model: opencode/minimax-m2.7
+          model: ${{ vars.OPENCODE_MODEL }}
