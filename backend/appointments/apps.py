@@ -15,8 +15,8 @@ def _auto_migrate(sender, connection, **kwargs):
     with _lock:
         if _migrated:
             return
-        _migrated = True
         call_command('migrate', '--run-syncdb', verbosity=0)
+        _migrated = True
 
 
 class AppointmentsConfig(AppConfig):
