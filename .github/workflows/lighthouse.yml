@@ -1,0 +1,71 @@
+name: Lighthouse Audit
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build and start production container
+        run: |
+          docker build --target prod -t calendar-prod . --build-arg PORT=8080
+          docker run -d -p 8080:8080 --name calendar-lh calendar-prod
+
+      - name: Wait for health endpoint
+        run: |
+          for i in $(seq 1 15); do
+            if curl -s http://localhost:8080/api/health 2>/dev/null | grep -q '"ok"'; then
+              echo "Health check passed"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Health check timed out"
+          exit 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Lighthouse
+        run: |
+          npx lighthouse http://localhost:8080 \
+            --output=json \
+            --output-path=./lighthouse-report.json \
+            --chrome-flags="--headless --no-sandbox --disable-gpu"
+
+      - name: Analyze with OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          prompt: |
+            Read ./lighthouse-report.json.
+            Compare LCP, CLS, INP with the values in
+            docs/performance-baseline.md.
+            For metrics that degraded by more than 10%,
+            identify likely culprits in recent commits and
+            create an issue with specific recommendations.
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lighthouse-report.json
+          retention-days: 30
+
+      - name: Cleanup container
+        if: always()
+        run: docker stop calendar-lh 2>/dev/null; docker rm calendar-lh 2>/dev/null
