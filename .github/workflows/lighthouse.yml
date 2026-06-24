@@ -58,6 +58,7 @@ jobs:
             For metrics that degraded by more than 10%,
             identify likely culprits in recent commits and
             create an issue with specific recommendations.
+          model: opencode/minimax-m2.7
 
       - name: Upload Lighthouse report
         uses: actions/upload-artifact@v4
