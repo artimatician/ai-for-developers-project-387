@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.0](https://github.com/artimatician/ai-for-developers-project-387/compare/schedule-a-call-v0.3.0...schedule-a-call-v0.4.0) (2026-06-24)
+
+
+### Features
+
+* add Lighthouse CI workflow with OpenCode performance analysis ([349110c](https://github.com/artimatician/ai-for-developers-project-387/commit/349110c270a4e6e23200851273ad80948ba53e7c))
+* skip OpenCode on clean Lighthouse runs and track metrics history ([8cfabef](https://github.com/artimatician/ai-for-developers-project-387/commit/8cfabef248b009e43645be376ce9f0e1bedb6db5))
+
+
+### Bug Fixes
+
+* add id-token write permission to Lighthouse workflow ([1dd8b7c](https://github.com/artimatician/ai-for-developers-project-387/commit/1dd8b7cc374c734816d0eeb41a1ef9a2b32ef2b8))
+* create missing directory ([cc4d8fd](https://github.com/artimatician/ai-for-developers-project-387/commit/cc4d8fda6b5f21884956684eb431c4ab2368ffa0))
+* reduce OpenCode PR size in lighthouse workflow ([72a07b8](https://github.com/artimatician/ai-for-developers-project-387/commit/72a07b800acdc3731594f0fc7cccc06997a293f6))
+* set model using vars ([1ab18bc](https://github.com/artimatician/ai-for-developers-project-387/commit/1ab18bc5dad10f8570626251a99b4469666ac269))
+* set the model ([bfe37c1](https://github.com/artimatician/ai-for-developers-project-387/commit/bfe37c107a7123a0444641f47c486ca782557b1d))
+* update lighthouse flow ([69b06e6](https://github.com/artimatician/ai-for-developers-project-387/commit/69b06e6170515727ecfabab5eafdc5933c96395d))
+* use different model for workflows ([3d8c4ff](https://github.com/artimatician/ai-for-developers-project-387/commit/3d8c4ff3194bc56582d148c7e43c4c4b2c67d445))
+
 ## [0.3.0](https://github.com/artimatician/ai-for-developers-project-387/compare/schedule-a-call-v0.2.0...schedule-a-call-v0.3.0) (2026-06-23)
 
 
