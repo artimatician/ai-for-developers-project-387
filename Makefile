@@ -20,7 +20,7 @@ test-spec:  ## @description Run spec validation
 	cd spec && npm test
 
 test-backend:  ## @description Run backend tests
-	cd backend && python3 manage.py test
+	cd backend && DISABLE_RATE_LIMIT=true python3 manage.py test
 
 test-e2e:  ## @description Run E2E API-only tests (auto-starts backend)
 	./tests/run-e2e-api.sh

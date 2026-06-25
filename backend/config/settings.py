@@ -55,6 +55,13 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'appointments.throttles.ClientAnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': os.environ.get('RATE_LIMIT_ANON', '60/minute'),
+    },
+    'EXCEPTION_HANDLER': 'appointments.exceptions.custom_exception_handler',
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%SZ',
 }
 
